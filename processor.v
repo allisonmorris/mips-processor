@@ -27,7 +27,7 @@ module processor(
 			data_mem_mux_sel_in;
 	
 	
-	control (.opcode_in(), .pc_en_out());
+	control (.opcode_in(), .pc_enable_out());
 	
 	datapath ();
 	
