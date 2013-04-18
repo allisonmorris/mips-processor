@@ -11,7 +11,7 @@ module control(
 	output reg data_mem_re_out,
 	output reg data_mem_we_out,
 	output reg data_mem_mux_select_out,
-	output reg [2:0] data_mem_size_out
+	output reg [1:0] data_mem_size_out
 	);
 
 //Opcode constants
@@ -25,7 +25,7 @@ parameter func_and =	6'b100100;
 parameter func_or =	6'b100101;
 parameter func_nor =	6'b100111;
 parameter func_xor =	6'b100110;
-parameter func_add =	6'b100000;
+parameter func_add =	6'b10000x;
 parameter func_sub=	6'b100010;
 
 // wire constants

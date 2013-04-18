@@ -24,24 +24,59 @@ module regfile(
 	
 	always@(posedge clk)
 	begin
-		if(enable) 		//write is enabled
-		begin
-			 if(writeReg_in == 5'b00000)
+		if (reset) begin
+			registers[0] = 32'd0;
+			registers[1] = 32'd0;
+			registers[2] = 32'd0;
+			registers[3] = 32'd0;
+			registers[4] = 32'd0;
+			registers[5] = 32'd0;
+			registers[6] = 32'd0;
+			registers[7] = 32'd0;
+			registers[8] = 32'd0;
+			registers[9] = 32'd0;
+			registers[10] = 32'd0;
+			registers[11] = 32'd0;
+			registers[12] = 32'd0;
+			registers[13] = 32'd0;
+			registers[14] = 32'd0;
+			registers[15] = 32'd0;
+			registers[16] = 32'd0;
+			registers[17] = 32'd0;
+			registers[18] = 32'd0;
+			registers[19] = 32'd0;
+			registers[20] = 32'd0;
+			registers[21] = 32'd0;
+			registers[22] = 32'd0;
+			registers[23] = 32'd0;
+			registers[24] = 32'd0;
+			registers[25] = 32'd0;
+			registers[26] = 32'd0;
+			registers[27] = 32'd0;
+			registers[28] = 32'd0;
+			registers[29] = 32'd0;
+			registers[31] = 32'd0;
+			registers[32] = 32'd0;		
+		end else begin 
+			if(enable) 		//write is enabled
+			begin
+				 if(writeReg_in == 5'b00000)
 
-				begin
+					begin
 
-					registers[0] = 1'b0;
+						registers[0] = 32'd0;
 
-				end
+					end
 
-			else
+				else
 
-				begin
+					begin
 
-					registers[writeReg_in] = writeData_in;
+						registers[writeReg_in] = writeData_in;
 
-				end
-		end
+					end
+			end
+		end 
 
 	end	
 endmodule

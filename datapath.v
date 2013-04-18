@@ -30,6 +30,21 @@ module datapath(
 	output serial_wren_out
 	);
 	
+	/* Alex's memory parameters */
+	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.inst_rom.memh";
+	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram0.memh";
+	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram1.memh";
+	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram2.memh";
+	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram3.memh";
+	/* Bob's memory parameters */
+	/*
+	parameter inst_mem_path = "";
+	parameter data_mem0_path = "";
+	parameter data_mem1_path = "";
+	parameter data_mem2_path = "";
+	parameter data_mem3_path = "";
+	*/
+	
 	// wires
 	wire 	[31:0]	pc_out,
 						adder_out,
@@ -49,44 +64,44 @@ module datapath(
 	assign inst_mem_func_out = instr_rom_out[5:0];
 						
 	//PC Register
-	pc(.clk(clock),.reset(reset), .enable(pc_en_in), .data_in(adder_out), .q_out(pc_out));
+	pc pcReg (.clk(clock),.reset(reset), .enable(pc_en_in), .data_in(adder_out), .q_out(pc_out));
 	
 	//Adder
-	pcAdder(.data_in(pc_out),.pc_out(adder_out));
+	pcAdder pcInc (.data_in(pc_out),.pc_out(adder_out));
 	
-	//Instruction Memory !!! REGFILE
-	regfile(.clk(clock), .reset(reset), .enable(regfile_we_in), .readReg1_in( instr_rom_out[25:21]), 
+	//register file
+	regfile regs (.clk(clock), .reset(reset), .enable(regfile_we_in), .readReg1_in( instr_rom_out[25:21]), 
 		.readReg2_in(instr_rom_out[20:16] ), .writeReg_in(instr_rom_out[15:11]), 
-		.writeData_in(data_mem_mux_out));
+		.writeData_in(data_mem_mux_out), .data1_out(reg_read1_out), .data2_out(reg_read2_out));
 				
 	//Instruction Mux
-	twoInMux#(.W(8))(.a_in(instr_mem_out[20:16]), .b_in(instr_mem_out[15:11]), .mux_out(instr_mux_out), 
+	twoInMux#(.W(5)) instMux (.a_in(instr_mem_out[20:16]), .b_in(instr_mem_out[15:11]), .mux_out(instr_mux_out), 
 		.select(inst_mux_sel_in)); 
 	
 	// Data Memory / Register Mux
-	twoInMux#(.W(32))(.a_in(reg_read2_out), .b_in(signExtend_out), .mux_out(instr_mux_out), .select(data_mem_mux_sel_in)); 
+	twoInMux#(.W(32)) dataMemMux (.a_in(reg_read2_out), .b_in(signExtend_out), .mux_out(instr_mux_out), .select(data_mem_mux_sel_in)); 
 	
 	//Data memory / alu Mux
-	twoInMux#(.W(32))(.a_in(alu_out), .b_in(data_mem_out), .mux_out(data_mem_mux_out), .select(alu_mux_sel_in)); 
+	twoInMux#(.W(32)) aluMux (.a_in(alu_out), .b_in(data_mem_out), .mux_out(data_mem_mux_out), .select(alu_mux_sel_in)); 
 	
 	//Sign Extender
-	signExtend(.i_in(instr_rom_out[15:0]), .extend_out(signExtend_out));
+	signExtend extender (.i_in(instr_rom_out[15:0]), .extend_out(signExtend_out));
 	
 	//ALU
-	alu(.Func_in(alu_func_in), .A_in(reg_read1_out), .B_in(alu_mux_out), .O_out(alu_out), .Branch_out(alu_branch_out), 
+	alu math (.Func_in(alu_func_in), .A_in(reg_read1_out), .B_in(alu_mux_out), .O_out(alu_out), .Branch_out(alu_branch_out), 
 		.Jump_out(alu_jump_out));
 	
 	//Instruction Rom
-	inst_rom#(.INIT_PROGRAM("C:/Alex/Documents/cse141/lab2/blank.memh"))(.clock(clock), .reset(reset), .addr_in(adder_out),
+	inst_rom#(.INIT_PROGRAM(inst_mem_path)) rom (.clock(clock), .reset(reset), .addr_in(adder_out),
 		.data_out(instr_rom_out));
 	
 	//Data Memory
 	data_memory
-	#(.INIT_PROGRAM0("C:/Alex/Documents/cse141/lab2/blank.memh"),
-		.INIT_PROGRAM1("C:/Alex/Documents/cse141/lab2/blank.memh"),
-		.INIT_PROGRAM2("C:/Alex/Documents/cse141/lab2/blank.memh"),
-		.INIT_PROGRAM3("C:/Alex/Documents/cse141/lab2/blank.memh"))
-		(.clock(clock), .reset(reset), .addr_in(alu_out), 
+	#(.INIT_PROGRAM0(data_mem0_path),
+		.INIT_PROGRAM1(data_mem1_path),
+		.INIT_PROGRAM2(data_mem2_path),
+		.INIT_PROGRAM3(data_mem3_path))
+		ram (.clock(clock), .reset(reset), .addr_in(alu_out), 
 		.writedata_in(reg_read2_out), .we_in(data_mem_we_in),.readdata_out(data_mem_out),
 		.re_in(data_mem_re_in), .size_in(data_mem_size_in), 
 		.serial_in(serial_in), .serial_ready_in(serial_ready_in), .serial_valid_in(serial_valid_in), 
