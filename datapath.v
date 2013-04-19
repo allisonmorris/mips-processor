@@ -31,11 +31,18 @@ module datapath(
 	);
 	
 	/* Alex's memory parameters */
+	/* lab3-test:
 	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.inst_rom.memh";
 	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram0.memh";
 	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram1.memh";
 	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram2.memh";
 	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram3.memh";
+	*/
+	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/nbhelloworld.inst_rom.memh";
+	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/nbhelloworld.data_ram0.memh";
+	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/nbhelloworld.data_ram1.memh";
+	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/nbhelloworld.data_ram2.memh";
+	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/nbhelloworld.data_ram3.memh";
 	/* Bob's memory parameters */
 	/*
 	parameter inst_mem_path = "";

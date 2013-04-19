@@ -39,92 +39,17 @@ always@(*)
 begin
 	case(opcode_in[5:0])
 	op_arith:
-		case (func_in[5:0])
-		/* func_add:
-			begin
+		begin
 			pc_enable_out = high;	
 			instr_mux_select_out = select_b;
 			regfile_we_out= high;
 			alu_mux_select_out = select_a;
-			alu_func_out = func_add;
+			alu_func_out = func_in[5:0];
 			data_mem_re_out = low;
 			data_mem_we_out= low;
 			data_mem_size_out = size_word;
 			data_mem_mux_select_out = select_a;
-			end */
-		func_sub:
-			begin
-			pc_enable_out =	high;	
-			instr_mux_select_out= select_a;
-			regfile_we_out= high;
-			alu_mux_select_out = select_a;
-			alu_func_out = func_add;
-			data_mem_re_out	= low;
-			data_mem_we_out= low;
-			data_mem_size_out = size_word;
-			data_mem_mux_select_out = select_a;					
-			end
-		func_and:
-			begin
-			pc_enable_out =	high;	
-			instr_mux_select_out= select_b;
-			regfile_we_out= high;
-			alu_mux_select_out = select_b;
-			alu_func_out = func_and;
-			data_mem_re_out	= low;
-			data_mem_we_out= low;
-			data_mem_size_out = size_word;
-			data_mem_mux_select_out = select_a;					
-			end					
-		func_or:
-			begin
-			pc_enable_out =	high;	
-			instr_mux_select_out= select_b;
-			regfile_we_out= high;
-			alu_mux_select_out = select_b;
-			alu_func_out = func_or;
-			data_mem_re_out	= low;
-			data_mem_we_out= low;
-			data_mem_size_out = size_word;
-			data_mem_mux_select_out = select_a;					
-			end
-		func_nor:
-			begin
-			pc_enable_out =	high;	
-			instr_mux_select_out= select_b;
-			regfile_we_out= high;
-			alu_mux_select_out = select_b;
-			alu_func_out = func_or;
-			data_mem_re_out	= low;
-			data_mem_we_out= low;
-			data_mem_size_out = size_word;
-			data_mem_mux_select_out = select_a;					
-			end
-		func_xor:
-			begin
-			pc_enable_out =	high;	
-			instr_mux_select_out= select_a;
-			regfile_we_out= high;
-			alu_mux_select_out = select_a;
-			alu_func_out = func_add;
-			data_mem_re_out	= low;
-			data_mem_we_out= low;
-			data_mem_size_out = size_word;
-			data_mem_mux_select_out = select_a;					
-			end
-		default:
-			begin
-			pc_enable_out = high;	
-			instr_mux_select_out = select_b;
-			regfile_we_out= high;
-			alu_mux_select_out = select_a;
-			alu_func_out = func_add;
-			data_mem_re_out = low;
-			data_mem_we_out= low;
-			data_mem_size_out = size_word;
-			data_mem_mux_select_out = select_a;
-			end
-		endcase
+		end 
 	op_addi:
 		begin
 		pc_enable_out =	high;	
@@ -161,7 +86,19 @@ begin
 		data_mem_size_out = size_word;
 		data_mem_mux_select_out = select_b;					
 		end
-	default:  $display("Error in opconde_in"); 
+	default:  
+		begin
+			pc_enable_out =	high;	
+		instr_mux_select_out= select_b;
+		regfile_we_out= low;
+		alu_mux_select_out = select_b;
+		alu_func_out = func_add;
+		data_mem_re_out	= low;
+		data_mem_we_out= low;
+		data_mem_size_out = size_word;
+		data_mem_mux_select_out = select_b;	
+			$display("Error in opconde_in %x", opcode_in[5:0]); 
+		end
 	endcase
 end
 	
