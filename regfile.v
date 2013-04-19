@@ -55,8 +55,8 @@ module regfile(
 			registers[27] = 32'd0;
 			registers[28] = 32'd0;
 			registers[29] = 32'd0;
-			registers[31] = 32'd0;
-			registers[32] = 32'd0;		
+			registers[30] = 32'd0;
+			registers[31] = 32'd0;		
 		end else begin 
 			if(enable) 		//write is enabled
 			begin

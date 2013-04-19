@@ -57,7 +57,7 @@ module datapath(
 						data_mem_out,
 						data_mem_mux_out,
 						instr_rom_out;
-	wire [5:0]		instr_mux_out;
+	wire [4:0]		instr_mux_out;
 
 	//output instruction data to control
 	assign inst_mem_opcode_out = instr_rom_out[31:26];
@@ -71,18 +71,18 @@ module datapath(
 	
 	//register file
 	regfile regs (.clk(clock), .reset(reset), .enable(regfile_we_in), .readReg1_in( instr_rom_out[25:21]), 
-		.readReg2_in(instr_rom_out[20:16] ), .writeReg_in(instr_rom_out[15:11]), 
+		.readReg2_in(instr_rom_out[20:16] ), .writeReg_in(instr_mux_out), 
 		.writeData_in(data_mem_mux_out), .data1_out(reg_read1_out), .data2_out(reg_read2_out));
 				
 	//Instruction Mux
-	twoInMux#(.W(5)) instMux (.a_in(instr_mem_out[20:16]), .b_in(instr_mem_out[15:11]), .mux_out(instr_mux_out), 
+	twoInMux#(.W(5)) instMux (.a_in(instr_rom_out[20:16]), .b_in(instr_rom_out[15:11]), .mux_out(instr_mux_out), 
 		.select(inst_mux_sel_in)); 
 	
-	// Data Memory / Register Mux
-	twoInMux#(.W(32)) dataMemMux (.a_in(reg_read2_out), .b_in(signExtend_out), .mux_out(instr_mux_out), .select(data_mem_mux_sel_in)); 
+	// Data Memory / Register Mux PRE-ALU
+	twoInMux#(.W(32)) aluMux (.a_in(reg_read2_out), .b_in(signExtend_out), .mux_out(alu_mux_out), .select(alu_mux_sel_in)); 
 	
-	//Data memory / alu Mux
-	twoInMux#(.W(32)) aluMux (.a_in(alu_out), .b_in(data_mem_out), .mux_out(data_mem_mux_out), .select(alu_mux_sel_in)); 
+	//Data memory / alu Mux POST-ALU
+	twoInMux#(.W(32)) dataMemMux (.a_in(alu_out), .b_in(data_mem_out), .mux_out(data_mem_mux_out), .select(data_mem_mux_sel_in)); 
 	
 	//Sign Extender
 	signExtend extender (.i_in(instr_rom_out[15:0]), .extend_out(signExtend_out));
