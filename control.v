@@ -14,92 +14,91 @@ module control(
 	output reg [1:0] data_mem_size_out
 	);
 
-//Opcode constants
-parameter op_arith =	6'b000000;
-parameter op_lw =		6'b100011;
-parameter op_sw = 	6'b101011;
-parameter op_addi = 	6'b001000;
-
-//Func constants
-parameter func_and =	6'b100100;
-parameter func_or =	6'b100101;
-parameter func_nor =	6'b100111;
-parameter func_xor =	6'b100110;
-parameter func_add =	6'b100000;
-parameter func_sub=	6'b100010;
-
-// wire constants
-parameter high =		1'b1;
-parameter low =		1'b0;
-parameter select_a= 	1'b0;
-parameter select_b=	1'b1;
-parameter size_word=	2'b11;
-
-always@(*)
-begin
-	case(opcode_in[5:0])
-	op_arith:
-		begin
-			pc_enable_out = high;	
-			instr_mux_select_out = select_b;
-			regfile_we_out= high;
-			alu_mux_select_out = select_a;
-			alu_func_out = func_in[5:0];
-			data_mem_re_out = low;
-			data_mem_we_out= low;
-			data_mem_size_out = size_word;
-			data_mem_mux_select_out = select_a;
-		end 
-	op_addi:
-		begin
-		pc_enable_out =	high;	
-		instr_mux_select_out= select_a;
-		regfile_we_out= high;
-		alu_mux_select_out = select_b;
-		alu_func_out = func_add;
-		data_mem_re_out	= low;
-		data_mem_we_out= low;
-		data_mem_size_out = size_word;
-		data_mem_mux_select_out = select_a;					
-		end
-	op_lw:
-		begin
-		pc_enable_out =	high;	
-		instr_mux_select_out= select_a;
-		regfile_we_out= high;
-		alu_mux_select_out = select_b;
-		alu_func_out = func_add;
-		data_mem_re_out	= high;
-		data_mem_we_out= low;
-		data_mem_size_out = size_word;
-		data_mem_mux_select_out = select_b;					
-		end
-	op_sw:
-		begin
-		pc_enable_out =	high;	
-		instr_mux_select_out= select_b;
-		regfile_we_out= low;
-		alu_mux_select_out = select_b;
-		alu_func_out = func_add;
-		data_mem_re_out	= low;
-		data_mem_we_out= high;
-		data_mem_size_out = size_word;
-		data_mem_mux_select_out = select_b;					
-		end
-	default:  
-		begin
-			pc_enable_out =	high;	
-		instr_mux_select_out= select_b;
-		regfile_we_out= low;
-		alu_mux_select_out = select_b;
-		alu_func_out = func_add;
-		data_mem_re_out	= low;
-		data_mem_we_out= low;
-		data_mem_size_out = size_word;
-		data_mem_mux_select_out = select_b;	
-			$display("Error in opconde_in %x", opcode_in[5:0]); 
-		end
-	endcase
-end
+	//Opcode constants
+	parameter op_arith =	6'b000000;
+	parameter op_lw =		6'b100011;
+	parameter op_sw = 	6'b101011;
+	parameter op_addi = 	6'b001000;
 	
+	//Func constants
+	parameter func_and =	6'b100100;
+	parameter func_or =	6'b100101;
+	parameter func_nor =	6'b100111;
+	parameter func_xor =	6'b100110;
+	parameter func_add =	6'b100000;
+	parameter func_sub=	6'b100010;
+	
+	// wire constants
+	parameter high =		1'b1;
+	parameter low =		1'b0;
+	parameter select_a= 	1'b0;
+	parameter select_b=	1'b1;
+	parameter size_word=	2'b11;
+	
+	always@(*)
+	begin
+		case(opcode_in[5:0])
+		op_arith:
+			begin
+				pc_enable_out = high;	
+				instr_mux_select_out = select_b;
+				regfile_we_out= high;
+				alu_mux_select_out = select_a;
+				alu_func_out = func_in[5:0];
+				data_mem_re_out = low;
+				data_mem_we_out= low;
+				data_mem_size_out = size_word;
+				data_mem_mux_select_out = select_a;
+			end 
+		op_addi:
+			begin
+				pc_enable_out =	high;	
+				instr_mux_select_out= select_a;
+				regfile_we_out= high;
+				alu_mux_select_out = select_b;
+				alu_func_out = func_add;
+				data_mem_re_out	= low;
+				data_mem_we_out= low;
+				data_mem_size_out = size_word;
+				data_mem_mux_select_out = select_a;					
+			end
+		op_lw:
+			begin
+				pc_enable_out =	high;	
+				instr_mux_select_out= select_a;
+				regfile_we_out= high;
+				alu_mux_select_out = select_b;
+				alu_func_out = func_add;
+				data_mem_re_out	= high;
+				data_mem_we_out= low;
+				data_mem_size_out = size_word;
+				data_mem_mux_select_out = select_b;					
+			end
+		op_sw:
+			begin
+				pc_enable_out =	high;	
+				instr_mux_select_out= select_a;
+				regfile_we_out= low;
+				alu_mux_select_out = select_b;
+				alu_func_out = func_add;
+				data_mem_re_out	= low;
+				data_mem_we_out= high;
+				data_mem_size_out = size_word;
+				data_mem_mux_select_out = select_b;					
+			end
+		default:  
+			begin
+				pc_enable_out =	high;	
+				instr_mux_select_out= select_b;
+				regfile_we_out= low;
+				alu_mux_select_out = select_b;
+				alu_func_out = func_add;
+				data_mem_re_out	= low;
+				data_mem_we_out= low;
+				data_mem_size_out = size_word;
+				data_mem_mux_select_out = select_b;	
+				$display("Error in opconde_in %x", opcode_in[5:0]); 
+			end
+		endcase
+	end
 endmodule
