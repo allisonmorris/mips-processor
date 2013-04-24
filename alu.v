@@ -7,6 +7,7 @@
 **
 **  Change Log:
 **  1/13/2012 - Adrian Caulfield - Initial Implementation
+**  4/15/2013 - Raymond Paseman - Augmented ALU to include shift functionality
 */
 
 module alu(
@@ -22,6 +23,10 @@ module alu(
 	// Mapping of Func_i to ALU Operations (X is don't care)
 	// Func_in		O_out								"Operation"
 	//--------------------------------------------------------------
+	// 000 X00     B << A							shift left logical
+	// 000 X10     B >> A							shift right logical
+	// 000 X11     B >> A 							shift right arithmetic
+	
 	// 1000 0X		A + B								ADD
 	// 1000 1X		A - B								SUB
 	// 1001 00		A & B								AND
@@ -57,6 +62,10 @@ module alu(
 	//---------------------------------------------------------------------------
 	reg [31:0] SltOut;
 	
+	//shift
+	//---------------------------------------------------------------------------
+	reg [31:0] ShiftOut;
+	
 	//----------------------------------------------------------------------------
 	//branches
 	reg [31:0] BranchOut;
@@ -78,7 +87,7 @@ module alu(
 		end
 		
 		AdderOut = A_in + AdderInputB + Func_in[1];
-
+			
 
 		//logic
 		case (Func_in[1:0])
@@ -127,13 +136,24 @@ module alu(
 			3'b100: //BEQ	   
 				DoBranch = Eq;
 			3'b101: //BNE								  
-				DoBranch = ~Eq;				
+				DoBranch = ~Eq;
 			3'b110: //BLEZ		
 				DoBranch = LEZ;
 			3'b111: //BGTZ		
 				DoBranch = GTZ;
 			default:
 				DoBranch = 1'b0;
+		endcase
+		
+		case (Func_in[1:0])
+			2'b00: //shift logical left
+				ShiftOut = B_in << A_in;
+			2'b10: //shift logical right	
+				ShiftOut = B_in >> A_in;
+			2'b11: //shift arithmetic right
+				ShiftOut = B_in >>> A_in;
+			default:
+				ShiftOut = B_in;
 		endcase
 	
 	
@@ -145,6 +165,8 @@ module alu(
 			O_out = AdderOut;
 		end else if (Func_in[5:2] == 4'b1001) begin
 			O_out = LogicOut;
+		end else if (Func_in[5:3] == 3'b000) begin
+			O_out = ShiftOut;
 		end else if (Func_in[5:3] == 3'b101) begin
 			O_out = SltOut;
 		end else if (Func_in[5:3] == 3'b111) begin
@@ -152,8 +174,9 @@ module alu(
 			Branch_out = DoBranch;
 			Jump_out = DoJump;
 		end else begin
-			O_out = 32'bxxxxxxxx_xxxxxxxx_xxxxxxxx_xxxxxxxx;
+			O_out = B_in;
 		end
 	end
 			
 endmodule
+
