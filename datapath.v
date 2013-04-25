@@ -56,7 +56,6 @@ module datapath(
 	// wires
 	wire 	[31:0]	pc_out,
 						adder_out,
-						instr_mem_out,
 						reg_read1_out,
 						reg_read2_out,
 						signExtend_out,
@@ -74,26 +73,61 @@ module datapath(
 	//PC Register
 	pc pcReg (.clk(clock),.reset(reset), .enable(pc_en_in), .data_in(adder_out), .q_out(pc_out));
 	
-	//Adder
+	// PC Adder
 	pcAdder pcInc (.data_in(pc_out),.pc_out(adder_out));
+	
+	// write pc mux
+	twoInMux #(.W(32)) writePcMux(.a_in(), .b_in(), .mux_out());
+	
+	// adder for adding branch offsets to pc
+	adder add (.a_in(), .b_in(), ._out());
+	
+	// sign extender for jumping
+	signExtend #(.W(26)) jumpExtender (.i_in(), .extend_out());
+	
+	// jump/branch immediate mux -- mux for combining jump or branch offset for shifting
+	twoInMux #(.W(32)) jumpBrnImmMux (.a_in(), .b_in(), .mux_out());
+	
+	// left shifter -- shift jump/branch offsets by 2
+	leftShifter #(.N(2)) shifter (._in(), ._out());
+	
+	// concatenator -- concatenates jump offset to pc
+	concatenator (._in(), ._out());
+	
+	// jump immediate/register mux -- determines whether to jump from imm or reg
+	twoInMux #(.W(32)) jumpImmRegMux(.a_in(), .b_in(), .mux_out());
+	
+	// branch mux -- update pc if branching
+	twoInMux #(.W(32)) brnMux (.a_in(), .b_in(), .mux_out());
+	
+	// jump mux -- update pc if jumping
+	twoInMux #(.W(32)) jumpMux (.a_in(), .b_in(), .mux_out());
+	
+	
 	
 	//register file
 	regfile regs (.clk(clock), .reset(reset), .enable(regfile_we_in), .readReg1_in( instr_rom_out[25:21]), 
 		.readReg2_in(instr_rom_out[20:16] ), .writeReg_in(instr_mux_out), 
 		.writeData_in(data_mem_mux_out), .data1_out(reg_read1_out), .data2_out(reg_read2_out));
 				
-	//Instruction Mux
+	//Instruction Mux for write register
 	twoInMux#(.W(5)) instMux (.a_in(instr_rom_out[20:16]), .b_in(instr_rom_out[15:11]), .mux_out(instr_mux_out), 
 		.select(inst_mux_sel_in)); 
 	
-	// Data Memory / Register Mux PRE-ALU
+	// alu Mux PRE-ALU
 	twoInMux#(.W(32)) aluMux (.a_in(reg_read2_out), .b_in(signExtend_out), .mux_out(alu_mux_out), .select(alu_mux_sel_in)); 
 	
-	//Data memory / alu Mux POST-ALU
+	//Data memory mux POST-ALU
 	twoInMux#(.W(32)) dataMemMux (.a_in(alu_out), .b_in(data_mem_out), .mux_out(data_mem_mux_out), .select(data_mem_mux_sel_in)); 
 	
-	//Sign Extender
+	//Sign Extender for immediates
 	signExtend extender (.i_in(instr_rom_out[15:0]), .extend_out(signExtend_out));
+	
+	// shift mux -- supply shamt or reg1 to alu
+	twoInMux #(.W(32)) shiftMux(.a_in(), .b_in(), .mux_out());
+	
+	// sign extender -- extend shamt to 32 bits
+	unsignExtend #(.W(5)) shiftExtender (.i_in(), .extend_out());
 	
 	//ALU
 	alu math (.Func_in(alu_func_in), .A_in(reg_read1_out), .B_in(alu_mux_out), .O_out(alu_out), .Branch_out(alu_branch_out), 
@@ -102,6 +136,15 @@ module datapath(
 	//Instruction Rom
 	inst_rom#(.INIT_PROGRAM(inst_mem_path), .ADDR_WIDTH(10)) rom (.clock(clock), .reset(reset), .addr_in(adder_out),
 		.data_out(instr_rom_out));
+		
+	// Up shifter (for lui)
+	upShifter us (._in(), ._out());
+	
+	// lui mux
+	twoInMux #(.W(32)) luiMux (.a_in(), .b_in(), .mux_out());
+	
+	// data memory loader -- fore correcting loads
+	dataMemoryLoader dmloader (._in(), .size_in(), .signed_in(), ._out());
 	
 	//Data Memory
 	data_memory

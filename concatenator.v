@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module concatenator #(parameter UP = 6, parameter W = 32)
+module concatenator #(parameter UP = 4, parameter W = 32)
 	(input [W-1:0] a_in, input [W-1:0] b_in, output reg [W-1:0] _out);
 	
 	always @(*) begin
