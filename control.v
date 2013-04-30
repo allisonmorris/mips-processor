@@ -106,7 +106,7 @@ module control(
 				data_mem_re_out = low;
 				data_mem_we_out= low;
 				data_mem_size_out = size_word;
-				data_mem_mux_select_out = select_a;
+				data_mem_mux_select_out = select_a;				
 			end 
 		op_addi:
 			begin
