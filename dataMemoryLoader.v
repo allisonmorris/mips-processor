@@ -13,7 +13,7 @@ module dataMemoryLoader (input [31:0] _in, input [1:0] size_in, input signed_in,
 			end
 			HALF: begin
 				_out[15:0] <= _in[15:0];
-				if (signed_in == 1'b1) begin
+				if (signed_in == 1'b0) begin
 					if (_in[15] == 1'b1) begin
 						_out[31:16] <= 16'hffff;
 					end else begin
@@ -25,7 +25,7 @@ module dataMemoryLoader (input [31:0] _in, input [1:0] size_in, input signed_in,
 			end
 			BYTE: begin
 				_out[7:0] <= _in[7:0];
-				if (signed_in == 1'b1) begin
+				if (signed_in == 1'b0) begin
 					if (_in[7] == 1'b1) begin
 						_out[31:8] <= 24'hffffff;
 					end else begin

@@ -130,11 +130,11 @@ module datapath(
 		.mux_out(jump_imm_reg_mux_out));
 	
 	// branch mux -- update pc if branching
-	twoInMux #(.W(32)) brnMux (.a_in(brn_adder_out), .b_in(pc_adder_out), .select(brn_mux_sel_in), 
+	twoInMux #(.W(32)) brnMux (.a_in(pc_adder_out), .b_in(brn_adder_out), .select(brn_mux_sel_in), 
 		.mux_out(brn_mux_out));
 	
 	// jump mux -- update pc if jumping
-	twoInMux #(.W(32)) jumpMux (.a_in(jump_imm_reg_mux_out), .b_in(brn_mux_out), .select(jump_mux_sel_in), 
+	twoInMux #(.W(32)) jumpMux (.a_in(brn_mux_out), .b_in(jump_imm_reg_mux_out), .select(jump_mux_sel_in), 
 		.mux_out(jump_mux_out));
 	
 	
