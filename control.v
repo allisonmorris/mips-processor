@@ -29,7 +29,7 @@ module control(
 	parameter op_sw = 	6'b101011;
 	parameter op_addi = 	6'b001000;
 	parameter op_addui = 6'b001001;
-	parameter op_andi = 	6'b00100;
+	parameter op_andi = 	6'b001100;
 	parameter op_ori = 	6'b001101;
 	parameter op_xori = 	6'b001110;
 	parameter op_lui = 	6'b001111;
@@ -42,7 +42,7 @@ module control(
 	parameter op_blez = 	6'b000110;
 	parameter op_bgtz = 	6'b000111;
 	parameter op_j = 		6'b000010;
-	parameter op_jal = 	6'b000010;
+	parameter op_jal = 	6'b000011;
 	parameter op_lb = 	6'b100000;
 	parameter op_lh = 	6'b100001;
 	parameter op_sb = 	6'b101000;
@@ -67,19 +67,15 @@ module control(
 	parameter func_sub=		6'b100010;
 	parameter func_subu =	6'b100011;
 	parameter func_slt=		6'b101010;
-	parameter func_sltu=		6'b101010; //dupe
+	parameter func_sltu=		6'b101011;
 	parameter func_sll=		6'b000000;
 	parameter func_srl =		6'b000010;
 	parameter func_sra =		6'b000011;
 	parameter func_sllv =	6'b000100;
-	parameter func_sra =		6'b000011;
 	parameter func_srlv =	6'b000110;
 	parameter func_srav =	6'b000111;
 	parameter func_jr =		6'b001000;
 	parameter func_jalr =	6'b001001;
-	
-	
-	
 	
 	// wire constants
 	parameter high =		1'b1;
@@ -89,7 +85,7 @@ module control(
 	parameter size_word=	2'b11;
 	parameter size_byte=	2'b00;
 	parameter size_hw=	2'b01;
-	
+
 	always@(*)
 	begin
 		case(opcode_in[5:0])
