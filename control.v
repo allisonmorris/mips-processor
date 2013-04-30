@@ -33,12 +33,12 @@ module control(
 	parameter op_ori = 	6'b001101;
 	parameter op_xori = 	6'b001110;
 	parameter op_lui = 	6'b001111;
-	parameter op_slti = 	6'b001011;
+	parameter op_slti = 	6'b001010;
 	parameter op_sltiu = 6'b001011;
 	parameter op_beq = 	6'b000100;
 	parameter op_bne = 	6'b000101;
-	parameter op_bltz = 	6'b000001;
-	parameter op_bgez = 	6'b000001;
+	parameter op_bltz = 	6'b000001; 
+	parameter op_bgez = 	6'b000001; 		// this one has a code to identify it.
 	parameter op_blez = 	6'b000110;
 	parameter op_bgtz = 	6'b000111;
 	parameter op_j = 		6'b000010;
@@ -66,16 +66,23 @@ module control(
 	parameter func_addu =	6'b100001;
 	parameter func_sub=		6'b100010;
 	parameter func_subu =	6'b100011;
-	parameter func_slt=		6'b101010;
-	parameter func_sltu=		6'b101011;
+	parameter func_slt=		6'b101000; 		
+	parameter func_sltu=		6'b101001;		
 	parameter func_sll=		6'b000000;
 	parameter func_srl =		6'b000010;
 	parameter func_sra =		6'b000011;
 	parameter func_sllv =	6'b000100;
 	parameter func_srlv =	6'b000110;
 	parameter func_srav =	6'b000111;
-	parameter func_jr =		6'b001000;
+	parameter func_jr =		6'b001000;		
 	parameter func_jalr =	6'b001001;
+	parameter func_bltz =	6'b111000;
+	parameter func_bgez =	6'b111001;
+	parameter func_beq =		6'b111100;
+	parameter func_bne =		6'b111101;
+	parameter func_blez =	6'b111110;
+	parameter func_bgtz =	6'b111111;
+	
 	
 	// wire constants
 	parameter high =		1'b1;
