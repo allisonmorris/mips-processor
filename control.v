@@ -85,13 +85,13 @@ module control(
 	
 	
 	// wire constants
-	parameter high =		1'b1;
-	parameter low =		1'b0;
-	parameter select_a= 	1'b0;
-	parameter select_b=	1'b1;
-	parameter size_word=	2'b11;
-	parameter size_byte=	2'b00;
-	parameter size_hw=	2'b01;
+	parameter high =			1'b1;
+	parameter low =			1'b0;
+	parameter select_a =		1'b0;
+	parameter select_b =		1'b1;
+	parameter size_word =	2'b11;
+	parameter size_byte =	2'b00;
+	parameter size_hw =		2'b01;
 
 	always@(*)
 	begin
