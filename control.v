@@ -4,6 +4,8 @@ module control(
 	input [5:0] opcode_in,
 	input [5:0] func_in,
 	input [4:0] code_in,
+	input jump_in,
+	input branch_in,
 	output reg pc_enable_out,
 	output reg [1:0]instr_mux_select_out,
 	output reg regfile_we_out,
