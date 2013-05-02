@@ -169,10 +169,11 @@ module alu(
 			O_out = ShiftOut;
 		end else if (Func_in[5:3] == 3'b101) begin
 			O_out = SltOut;
-		end else if (Func_in[5:3] == 3'b111) begin
+		end else if (Func_in[5:3] == 3'b001) begin
 			O_out = BranchOut;
 			Branch_out = DoBranch;
 			Jump_out = DoJump;
+		
 		end else begin
 			O_out = B_in;
 		end

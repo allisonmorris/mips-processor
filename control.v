@@ -77,12 +77,12 @@ module control(
 	parameter func_srav =	6'b000111;
 	parameter func_jr =		6'b001000;		
 	parameter func_jalr =	6'b001001;
-	parameter func_bltz =	6'b111000;
-	parameter func_bgez =	6'b111001;
-	parameter func_beq =		6'b111100;
-	parameter func_bne =		6'b111101;
-	parameter func_blez =	6'b111110;
-	parameter func_bgtz =	6'b111111;
+	parameter func_bltz =	6'b001000;
+	parameter func_bgez =	6'b001001;
+	parameter func_beq =		6'b001100;
+	parameter func_bne =		6'b001101;
+	parameter func_blez =	6'b001110;
+	parameter func_bgtz =	6'b001111;
 	
 	
 	// wire constants
@@ -135,7 +135,7 @@ module control(
 					jmp_brn_mux_select_out = low;
 					shift_mux_select_out = high;
 					jmp_immreg_mux_select_out = low;
-					 brn_mux_select_out = branch_in;
+					brn_mux_select_out = branch_in;
 					jmp_mux_select_out = jump_in;
 					lui_mux_select = low;
 					wrdata_mux_select = low;
@@ -196,7 +196,7 @@ module control(
 					jmp_brn_mux_select_out = low;
 					shift_mux_select_out = low;
 					jmp_immreg_mux_select_out = low;
-					 brn_mux_select_out = branch_in;
+					brn_mux_select_out = branch_in;
 					jmp_mux_select_out = jump_in;
 					lui_mux_select = high;
 					wrdata_mux_select = high;
@@ -217,7 +217,7 @@ module control(
 				jmp_brn_mux_select_out = low;
 				shift_mux_select_out = low;
 				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
+				brn_mux_select_out = branch_in;
 				jmp_mux_select_out = jump_in;
 				lui_mux_select = high;
 				wrdata_mux_select = low;
@@ -430,7 +430,7 @@ module control(
 				jmp_brn_mux_select_out = low;
 				shift_mux_select_out = low;
 				jmp_immreg_mux_select_out = high;
-				 brn_mux_select_out = branch_in;
+				brn_mux_select_out = branch_in;
 				jmp_mux_select_out = jump_in;
 				lui_mux_select = high;
 				wrdata_mux_select = low;
