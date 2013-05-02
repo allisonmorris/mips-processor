@@ -10,6 +10,9 @@ module datapath(
 	output alu_jump_out,
 	output alu_branch_out,
 	
+	// out put for lab 4
+	output [4:0] inst_mem_rt_out,
+	
 	//input from control
 	input pc_en_in,
 	//input inst_mux_sel_in, UPDATED in lab 4
@@ -50,11 +53,11 @@ module datapath(
 	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram2.memh";
 	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram3.memh";
 	 */
-	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/nbhelloworld.inst_rom.memh";
-	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/nbhelloworld.data_ram0.memh";
-	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/nbhelloworld.data_ram1.memh";
-	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/nbhelloworld.data_ram2.memh";
-	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/nbhelloworld.data_ram3.memh";
+	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.inst_rom.memh";
+	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram0.memh";
+	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram1.memh";
+	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram2.memh";
+	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram3.memh";
 	
 	/* Bob's memory parameters */
 	/*
@@ -98,6 +101,7 @@ module datapath(
 	//output instruction data to control
 	assign inst_mem_opcode_out = instr_rom_out[31:26];
 	assign inst_mem_func_out = instr_rom_out[5:0];
+	assign inst_mem_rt_out = instr_rom_out[20:16];
 						
 	//PC Register
 	pc pcReg (.clk(clock),.reset(reset), .enable(pc_en_in), .data_in(jump_mux_out), .q_out(pc_out));
@@ -123,7 +127,7 @@ module datapath(
 	leftShifter #(.N(2)) shifter (._in(jump_brn_imm_mux_out), ._out(sl2_out));
 	
 	// concatenator -- concatenates jump offset to pc
-	concatenator (._in(sl2_out), ._out(concat_out));
+	concatenator jumpConcat (.a_in(pc_adder_out), .b_in(sl2_out), ._out(concat_out));
 	
 	// jump immediate/register mux -- determines whether to jump from imm or reg
 	twoInMux #(.W(32)) jumpImmRegMux(.a_in(alu_out), .b_in(concat_out), .select(jump_imm_reg_mux_sel_in), 

@@ -151,7 +151,7 @@ module alu(
 			2'b10: //shift logical right	
 				ShiftOut = B_in >> A_in;
 			2'b11: //shift arithmetic right
-				ShiftOut = B_in >>> A_in;
+				ShiftOut = $signed(B_in) >>> A_in;
 			default:
 				ShiftOut = B_in;
 		endcase

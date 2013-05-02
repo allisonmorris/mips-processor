@@ -30,6 +30,7 @@ module processor(
 	
 	//wires from lab 4
 	wire [1:0] inst_mux_sel;
+	wire [4:0] inst_mem_rt;
 	wire       wrdata_mux_sel,
 				  jump_brn_imm_mux_sel,
 				  lui_mux_sel,
@@ -47,7 +48,7 @@ module processor(
 		.jmp_brn_mux_select_out(jump_brn_imm_mux_sel), .shift_mux_select_out(shift_mux_sel), 
 		.jmp_immreg_mux_select_out(jump_imm_reg_mux_sel), .brn_mux_select_out(brn_mux_sel),
 		.jmp_mux_select_out(jump_mux_sel), .lui_mux_select(lui_mux_sel), .wrdata_mux_select(wrdata_mux_sel),
-		.signed_out(data_mem_signed));
+		.signed_out(data_mem_signed), .branch_in(alu_branch), .jump_in(alu_jump), .code_in(inst_mem_rt));
 	
 	datapath dp (.clock(clock), .reset(reset), .inst_mem_opcode_out(inst_mem_opcode), 
 		.inst_mem_func_out(inst_mem_func), .alu_jump_out(alu_jump), .alu_branch_out(alu_branch), 
@@ -56,7 +57,7 @@ module processor(
 		.data_mem_size_in(data_mem_size), .data_mem_mux_sel_in(data_mem_mux_sel), 
 		.wrdata_mux_sel_in(wrdata_mux_sel), .jump_brn_imm_mux_sel_in(jump_brn_imm_mux_sel), .lui_mux_sel_in(lui_mux_sel), 
 		.shift_mux_sel_in(shift_mux_sel), .brn_mux_sel_in(brn_mux_sel), .jump_imm_reg_mux_sel_in(jump_imm_reg_mux_sel),
-		.jump_mux_sel_in(jump_mux_sel), .data_mem_signed_in(data_mem_signed),
+		.jump_mux_sel_in(jump_mux_sel), .data_mem_signed_in(data_mem_signed), .inst_mem_rt_out(inst_mem_rt),
 		.serial_in(serial_in), .serial_ready_in(serial_ready_in), .serial_valid_in(serial_valid_in), 
 		.serial_out(serial_out), .serial_rden_out(serial_rden_out), .serial_wren_out(serial_wren_out));
 	
