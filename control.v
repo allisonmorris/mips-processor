@@ -75,10 +75,12 @@ module control(
 	parameter func_sllv =	6'b000100;
 	parameter func_srlv =	6'b000110;
 	parameter func_srav =	6'b000111;
-	parameter func_jr =		6'b001000;		
-	parameter func_jalr =	6'b001001;
-	parameter func_bltz =	6'b001000;
-	parameter func_bgez =	6'b001001;
+	parameter func_jr =		6'b001000;		//jr and j
+	parameter func_jalr =	6'b001001;		//jalr and jal
+	
+	// following are pseudo-funcs for alu
+	parameter func_bltz =	6'b001010;	
+	parameter func_bgez =	6'b001011;
 	parameter func_beq =		6'b001100;
 	parameter func_bne =		6'b001101;
 	parameter func_blez =	6'b001110;
@@ -185,7 +187,7 @@ module control(
 				if( func_in == func_jalr)
 				begin
 					pc_enable_out = high;	
-					instr_mux_select_out = select_a;
+					instr_mux_select_out = select_ra;
 					regfile_we_out= high;
 					alu_mux_select_out = low;
 					alu_func_out = func_jr;
@@ -526,6 +528,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= low;
+				alu_func_out = func_jr; // handles j case as well
 				alu_mux_select_out = low;
 				data_mem_re_out	= low;
 				data_mem_we_out= low;
@@ -543,8 +546,9 @@ module control(
 	op_jal:
 			begin
 				pc_enable_out =	high;	
-				instr_mux_select_out= select_b;
+				instr_mux_select_out= select_ra;
 				regfile_we_out= high;
+				alu_func_out = func_jalr; // handles jal case as well
 				alu_mux_select_out = low;
 				data_mem_re_out	= low;
 				data_mem_we_out= low;

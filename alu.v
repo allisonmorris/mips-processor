@@ -125,13 +125,17 @@ module alu(
 		DoBranch = 1'b0;
 		DoJump = 1'b0;
 		case (Func_in[2:0])
-			3'b000: //BLTZ
+			//3'b000: //BLTZ
+			3'b010:
 				DoBranch = LTZ;
-			3'b001: //BGEZ		
+			//3'b001: //BGEZ
+			3'b011:
 				DoBranch = GEZ;
-			3'b010: //J/JAL
+			//3'b010: //J/JAL
+			3'b000: // j and jr
 				DoJump = 1'b1;
-			3'b011: //JR/JALR
+			//3'b011: //JR/JALR
+			3'b001: // jal and jalr
 				DoJump = 1'b1;
 			3'b100: //BEQ	   
 				DoBranch = Eq;
@@ -169,7 +173,7 @@ module alu(
 			O_out = ShiftOut;
 		end else if (Func_in[5:3] == 3'b101) begin
 			O_out = SltOut;
-		end else if (Func_in[5:3] == 3'b001) begin
+		end else if (Func_in[5:3] == 3'b001) begin //originally 111--weird alu
 			O_out = BranchOut;
 			Branch_out = DoBranch;
 			Jump_out = DoJump;
