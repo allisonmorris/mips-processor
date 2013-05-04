@@ -1,0 +1,103 @@
+/*for instructions sll, srl, sra
+				if(func_in[5:2]==4'b0000)
+				begin
+	pc_enable_out = high;	
+	instr_mux_select_out = select_b;
+	regfile_we_out= high;
+	alu_mux_select_out = low;
+	alu_func_out = func_in[5:0];
+	data_mem_re_out = low;
+	data_mem_we_out= low;
+	data_mem_size_out = size_word;
+	data_mem_mux_select_out = low;
+	jmp_brn_mux_select_out = low;
+	shift_mux_select_out = high;
+	jmp_immreg_mux_select_out = low;
+	brn_mux_select_out = branch_in;
+	jmp_mux_select_out = jump_in;
+	lui_mux_select = low;
+	wrdata_mux_select = low;
+	signed_out = low;				
+				end else 
+				// for instructions sllv, srlv, srav
+				if(func_in[5:2]==4'b0001)
+				begin
+pc_enable_out = high;	
+instr_mux_select_out = select_b;
+regfile_we_out= high;
+alu_mux_select_out = low;
+alu_func_out = func_in[5:0];
+data_mem_re_out = low;
+data_mem_we_out= low;
+data_mem_size_out = size_word;
+data_mem_mux_select_out = low;
+jmp_brn_mux_select_out = low;
+shift_mux_select_out = low;
+jmp_immreg_mux_select_out = low;
+ brn_mux_select_out = branch_in;
+jmp_mux_select_out = jump_in;
+lui_mux_select = low;
+wrdata_mux_select = low;
+signed_out = low;				
+				end else 
+				if (func_in == func_jr)
+				begin
+pc_enable_out = high;	
+instr_mux_select_out = select_a;
+regfile_we_out= low;
+alu_mux_select_out = low;
+alu_func_out = func_jr;
+data_mem_re_out = low;
+data_mem_we_out= low;
+data_mem_size_out = size_word;
+data_mem_mux_select_out = low;
+jmp_brn_mux_select_out = low;
+shift_mux_select_out = low;
+jmp_immreg_mux_select_out = low;
+ brn_mux_select_out = branch_in;
+jmp_mux_select_out = jump_in;
+lui_mux_select = high;
+wrdata_mux_select = low;
+signed_out = low;						
+				end else 
+				if( func_in == func_jalr)
+				begin
+pc_enable_out = high;	
+instr_mux_select_out = select_ra;
+regfile_we_out= high;
+alu_mux_select_out = low;
+alu_func_out = func_jr;
+data_mem_re_out = low;
+data_mem_we_out= low;
+data_mem_size_out = size_word;
+data_mem_mux_select_out = low;
+jmp_brn_mux_select_out = low;
+shift_mux_select_out = low;
+jmp_immreg_mux_select_out = low;
+brn_mux_select_out = branch_in;
+jmp_mux_select_out = jump_in;
+lui_mux_select = high;
+wrdata_mux_select = high;
+signed_out = low;							
+				end else
+				// standard R type instructions
+				if(func_in[5:4] == 2'b10 )
+				begin
+pc_enable_out = high;	
+instr_mux_select_out = select_b;
+regfile_we_out= high;
+alu_mux_select_out = low;
+alu_func_out = func_in[5:0];
+data_mem_re_out = low;
+data_mem_we_out= low;
+data_mem_size_out = size_word;
+data_mem_mux_select_out = low;
+jmp_brn_mux_select_out = low;
+shift_mux_select_out = low;
+jmp_immreg_mux_select_out = low;
+brn_mux_select_out = low;
+jmp_mux_select_out = jump_in;
+lui_mux_select = low;
+wrdata_mux_select = low;
+signed_out = low;
+				end*/

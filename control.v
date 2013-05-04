@@ -22,7 +22,8 @@ module control(
 	output reg jmp_mux_select_out,
 	output reg lui_mux_select,
 	output reg wrdata_mux_select,
-	output reg signed_out
+	output reg signed_out,
+	output reg extender_mux_select_out
 	);
 
 	//Opcode constants
@@ -92,7 +93,8 @@ module control(
 	parameter low =			1'b0;
 	parameter select_a =		2'b00;
 	parameter select_b =		2'b01;
-	parameter select_ra =	2'b11;
+	parameter select_c = 	2'b10;
+	parameter select_d =    2'b11;
 	parameter size_word =	2'b11;
 	parameter size_byte =	2'b00;
 	parameter size_hw =		2'b01;
@@ -102,108 +104,48 @@ module control(
 		case(opcode_in[5:0])
 		op_arith:
 			begin
-				if(func_in[5:4] == 2'b10 )
-				begin
-					pc_enable_out = high;	
+				pc_enable_out = high;	
+				alu_func_out = func_in[5:0];
+				alu_mux_select_out = low;
+				data_mem_re_out = low;
+				data_mem_we_out= low;
+				data_mem_size_out = size_word;
+				data_mem_mux_select_out = low;
+				jmp_brn_mux_select_out = low;
+				jmp_immreg_mux_select_out = low;
+				 brn_mux_select_out = branch_in;
+				jmp_mux_select_out = jump_in;
+				lui_mux_select = low;
+				signed_out = low;
+				//shifts
+				if (func_in[5:3] == 3'b000) begin
 					instr_mux_select_out = select_b;
-					regfile_we_out= high;
-					alu_mux_select_out = low;
-					alu_func_out = func_in[5:0];
-					data_mem_re_out = low;
-					data_mem_we_out= low;
-					data_mem_size_out = size_word;
-					data_mem_mux_select_out = low;
-					jmp_brn_mux_select_out = low;
-					shift_mux_select_out = low;
-					jmp_immreg_mux_select_out = low;
-					brn_mux_select_out = low;
-					jmp_mux_select_out = jump_in;
-					lui_mux_select = low;
+					regfile_we_out = high;
 					wrdata_mux_select = low;
-					signed_out = low;
-				end
-				//for instructions sll, srl, sra
-				if(func_in[5:2]==4'b0000)
-				begin
-					pc_enable_out = high;	
+					if (func_in[2] == 1'b0) begin
+						shift_mux_select_out = high;
+					end else begin
+						shift_mux_select_out = low;
+					end
+				//jumps
+				end else if (func_in[5:3] == 3'b001) begin
+					shift_mux_select_out = low;
+					if (func_in[0] == 1'b0) begin
+						instr_mux_select_out = select_a;
+						regfile_we_out = low;
+						wrdata_mux_select = low;
+					end else begin
+						instr_mux_select_out = select_c;
+						regfile_we_out = high;
+						wrdata_mux_select = high;
+					end
+				//default R type
+				end else begin
 					instr_mux_select_out = select_b;
-					regfile_we_out= high;
-					alu_mux_select_out = low;
-					alu_func_out = func_in[5:0];
-					data_mem_re_out = low;
-					data_mem_we_out= low;
-					data_mem_size_out = size_word;
-					data_mem_mux_select_out = low;
-					jmp_brn_mux_select_out = low;
-					shift_mux_select_out = high;
-					jmp_immreg_mux_select_out = low;
-					brn_mux_select_out = branch_in;
-					jmp_mux_select_out = jump_in;
-					lui_mux_select = low;
+					regfile_we_out = high;
+					shift_mux_select_out = low; 
 					wrdata_mux_select = low;
-					signed_out = low;				
 				end
-				// for instructions sllv, srlv, srav
-				if(func_in[5:2]==4'b0001)
-				begin
-					pc_enable_out = high;	
-					instr_mux_select_out = select_b;
-					regfile_we_out= high;
-					alu_mux_select_out = low;
-					alu_func_out = func_in[5:0];
-					data_mem_re_out = low;
-					data_mem_we_out= low;
-					data_mem_size_out = size_word;
-					data_mem_mux_select_out = low;
-					jmp_brn_mux_select_out = low;
-					shift_mux_select_out = low;
-					jmp_immreg_mux_select_out = low;
-					 brn_mux_select_out = branch_in;
-					jmp_mux_select_out = jump_in;
-					lui_mux_select = low;
-					wrdata_mux_select = low;
-					signed_out = low;				
-				end
-				if (func_in == func_jr)
-				begin
-					pc_enable_out = high;	
-					instr_mux_select_out = select_a;
-					regfile_we_out= low;
-					alu_mux_select_out = low;
-					alu_func_out = func_jr;
-					data_mem_re_out = low;
-					data_mem_we_out= low;
-					data_mem_size_out = size_word;
-					data_mem_mux_select_out = low;
-					jmp_brn_mux_select_out = low;
-					shift_mux_select_out = low;
-					jmp_immreg_mux_select_out = low;
-					 brn_mux_select_out = branch_in;
-					jmp_mux_select_out = jump_in;
-					lui_mux_select = high;
-					wrdata_mux_select = low;
-					signed_out = low;						
-				end
-				if( func_in == func_jalr)
-				begin
-					pc_enable_out = high;	
-					instr_mux_select_out = select_ra;
-					regfile_we_out= high;
-					alu_mux_select_out = low;
-					alu_func_out = func_jr;
-					data_mem_re_out = low;
-					data_mem_we_out= low;
-					data_mem_size_out = size_word;
-					data_mem_mux_select_out = low;
-					jmp_brn_mux_select_out = low;
-					shift_mux_select_out = low;
-					jmp_immreg_mux_select_out = low;
-					brn_mux_select_out = branch_in;
-					jmp_mux_select_out = jump_in;
-					lui_mux_select = high;
-					wrdata_mux_select = high;
-					signed_out = low;							
-				end	
 			end 
 		op_addi:
 			begin
@@ -235,7 +177,7 @@ module control(
 				data_mem_re_out	= high;
 				data_mem_we_out= low;
 				data_mem_size_out = size_word;
-				data_mem_mux_select_out = select_b;	
+				data_mem_mux_select_out = high;	
 				jmp_brn_mux_select_out = low;
 				shift_mux_select_out = low;
 				jmp_immreg_mux_select_out = low;
@@ -255,7 +197,7 @@ module control(
 				data_mem_re_out	= low;
 				data_mem_we_out= high;
 				data_mem_size_out = size_word;
-				data_mem_mux_select_out = select_b;
+				data_mem_mux_select_out = high;
 				jmp_brn_mux_select_out = low;
 				shift_mux_select_out = low;
 				jmp_immreg_mux_select_out = low;
@@ -270,6 +212,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_add;
 				alu_mux_select_out = high;
 				data_mem_re_out	= low;
 				data_mem_we_out= low;
@@ -289,6 +232,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_and;
 				alu_mux_select_out = high;
 				data_mem_re_out	= low;
 				data_mem_we_out= low;
@@ -308,6 +252,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_or;
 				alu_mux_select_out = high;
 				data_mem_re_out	= low;
 				data_mem_we_out= low;
@@ -327,6 +272,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_xor;
 				alu_mux_select_out = high;
 				data_mem_re_out	= low;
 				data_mem_we_out= low;
@@ -346,6 +292,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_or;
 				alu_mux_select_out = high;
 				data_mem_re_out	= low;
 				data_mem_we_out= low;
@@ -365,6 +312,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_slt;
 				alu_mux_select_out = high;
 				data_mem_re_out	= low;
 				data_mem_we_out= low;
@@ -384,6 +332,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_slt;
 				alu_mux_select_out = high;
 				data_mem_re_out	= low;
 				data_mem_we_out= low;
@@ -402,7 +351,7 @@ module control(
 			begin
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
-				regfile_we_out= high;
+				regfile_we_out= low;
 				alu_func_out = func_beq;
 				alu_mux_select_out = low;
 				data_mem_re_out	= low;
@@ -422,7 +371,7 @@ module control(
 			begin
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
-				regfile_we_out= high;
+				regfile_we_out= low;
 				alu_func_out = func_bne;
 				alu_mux_select_out = low;
 				data_mem_re_out	= low;
@@ -444,7 +393,7 @@ module control(
 				begin
 					pc_enable_out =	high;	
 					instr_mux_select_out= select_a;
-					regfile_we_out= high;
+					regfile_we_out= low;
 					alu_func_out = func_bltz;
 					alu_mux_select_out = low;
 					data_mem_re_out	= low;
@@ -465,7 +414,7 @@ module control(
 					//handles bgez
 					pc_enable_out =	high;	
 					instr_mux_select_out= select_a;
-					regfile_we_out= high;
+					regfile_we_out= low;
 					alu_func_out = func_bgez;
 					alu_mux_select_out = low;
 					data_mem_re_out	= low;
@@ -487,7 +436,7 @@ module control(
 			begin
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
-				regfile_we_out= high;
+				regfile_we_out= low;
 				alu_func_out = func_blez;
 				alu_mux_select_out = low;
 				data_mem_re_out	= low;
@@ -507,7 +456,7 @@ module control(
 			begin
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
-				regfile_we_out= high;
+				regfile_we_out= low;
 				alu_func_out = func_bgtz;
 				alu_mux_select_out = low;
 				data_mem_re_out	= low;
@@ -546,7 +495,7 @@ module control(
 	op_jal:
 			begin
 				pc_enable_out =	high;	
-				instr_mux_select_out= select_ra;
+				instr_mux_select_out= select_c;
 				regfile_we_out= high;
 				alu_func_out = func_jalr; // handles jal case as well
 				alu_mux_select_out = low;
@@ -568,6 +517,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_add;
 				alu_mux_select_out = high;
 				data_mem_re_out	= high;
 				data_mem_we_out= low;
@@ -587,6 +537,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_add;
 				alu_mux_select_out = high;
 				data_mem_re_out	= high;
 				data_mem_we_out= low;
@@ -606,6 +557,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_add;
 				alu_mux_select_out = high;
 				data_mem_re_out	= high;
 				data_mem_we_out= low;
@@ -625,6 +577,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= high;
+				alu_func_out = func_add;
 				alu_mux_select_out = high;
 				data_mem_re_out	= high;
 				data_mem_we_out= low;
@@ -644,6 +597,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= low;
+				alu_func_out = func_add;
 				alu_mux_select_out = high;
 				data_mem_re_out	= low;
 				data_mem_we_out= high;
@@ -663,6 +617,7 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_a;
 				regfile_we_out= low;
+				alu_func_out = func_add;
 				alu_mux_select_out = high;
 				data_mem_re_out	= low;
 				data_mem_we_out= high;
@@ -683,12 +638,12 @@ module control(
 				pc_enable_out =	high;	
 				instr_mux_select_out= select_b;
 				regfile_we_out= low;
-				alu_mux_select_out = select_b;
+				alu_mux_select_out = high;
 				alu_func_out = func_add;
 				data_mem_re_out	= low;
 				data_mem_we_out= low;
 				data_mem_size_out = size_word;
-				data_mem_mux_select_out = select_b;
+				data_mem_mux_select_out = high;
 				jmp_brn_mux_select_out = low;
 				shift_mux_select_out = low;
 				jmp_immreg_mux_select_out = low;

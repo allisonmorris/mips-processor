@@ -34,6 +34,7 @@ module datapath(
 	input jump_imm_reg_mux_sel_in,
 	input jump_mux_sel_in,
 	input data_mem_signed_in,
+	input extender_mux_sel_in,
 	
 	
 	//serial stuff
@@ -53,11 +54,11 @@ module datapath(
 	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram2.memh";
 	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram3.memh";
 	 */
-	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.inst_rom.memh";
-	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram0.memh";
-	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram1.memh";
-	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram2.memh";
-	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram3.memh";
+	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.rom.memh";
+	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
+	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
+	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
+	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 	
 	/* Bob's memory parameters */
 	/*
@@ -95,7 +96,9 @@ module datapath(
 					jump_imm_reg_mux_out,
 					brn_mux_out,
 					jump_mux_out,
-					mem_loader_out;
+					mem_loader_out,
+					arithExtend_out,
+					logicalExtend_out;
 					
 	
 	//output instruction data to control
@@ -160,7 +163,14 @@ module datapath(
 		.select(data_mem_mux_sel_in)); 
 	
 	//Sign Extender for immediates
-	signExtend extender (.i_in(instr_rom_out[15:0]), .extend_out(signExtend_out));
+	signExtend extender (.i_in(instr_rom_out[15:0]), .extend_out(arithExtend_out));
+	
+	// extender for logical immediates
+	usignExtend logicalExtender (.i_in(instr_mux_out[15:0]), .extend_out(logicalExtend_out));
+	
+	// extender mux -- choose sign or unsigned extender
+	twoInMux #(.W(32)) extenderMux (.a_in(arithExtend_out), .b_in(logicalExtend_out), .mux_out(signExtend_out),
+		.select(extender_mux_sel_in));
 	
 	// shift mux -- supply shamt or reg1 to alu
 	twoInMux #(.W(32)) shiftMux(.a_in(reg_read1_out), .b_in(shift_extend_out), .select(shift_mux_sel_in), 
