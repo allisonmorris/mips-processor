@@ -166,7 +166,7 @@ module datapath(
 	signExtend extender (.i_in(instr_rom_out[15:0]), .extend_out(arithExtend_out));
 	
 	// extender for logical immediates
-	usignExtend logicalExtender (.i_in(instr_mux_out[15:0]), .extend_out(logicalExtend_out));
+	unsignExtend logicalExtender (.i_in(instr_rom_out[15:0]), .extend_out(logicalExtend_out));
 	
 	// extender mux -- choose sign or unsigned extender
 	twoInMux #(.W(32)) extenderMux (.a_in(arithExtend_out), .b_in(logicalExtend_out), .mux_out(signExtend_out),

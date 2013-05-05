@@ -31,7 +31,7 @@ module control(
 	parameter op_lw =		6'b100011;
 	parameter op_sw = 	6'b101011;
 	parameter op_addi = 	6'b001000;
-	parameter op_addui = 6'b001001;
+	parameter op_addiu = 6'b001001;
 	parameter op_andi = 	6'b001100;
 	parameter op_ori = 	6'b001101;
 	parameter op_xori = 	6'b001110;
@@ -40,7 +40,7 @@ module control(
 	parameter op_sltiu = 6'b001011;
 	parameter op_beq = 	6'b000100;
 	parameter op_bne = 	6'b000101;
-	parameter op_bltz = 	6'b000001; //same opcode for bgez 
+	parameter op_bltz_bgez = 	6'b000001; //same opcode for bgez 
 	parameter op_blez = 	6'b000110;
 	parameter op_bgtz = 	6'b000111;
 	parameter op_j = 		6'b000010;
@@ -99,561 +99,233 @@ module control(
 	parameter size_byte =	2'b00;
 	parameter size_hw =		2'b01;
 
-	always@(*)
-	begin
-		case(opcode_in[5:0])
-		op_arith:
-			begin
-				pc_enable_out = high;	
-				alu_func_out = func_in[5:0];
-				alu_mux_select_out = low;
-				data_mem_re_out = low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = low;
-				signed_out = low;
-				//shifts
-				if (func_in[5:3] == 3'b000) begin
-					instr_mux_select_out = select_b;
-					regfile_we_out = high;
-					wrdata_mux_select = low;
-					if (func_in[2] == 1'b0) begin
-						shift_mux_select_out = high;
-					end else begin
-						shift_mux_select_out = low;
-					end
-				//jumps
-				end else if (func_in[5:3] == 3'b001) begin
-					shift_mux_select_out = low;
-					if (func_in[0] == 1'b0) begin
-						instr_mux_select_out = select_a;
-						regfile_we_out = low;
-						wrdata_mux_select = low;
-					end else begin
-						instr_mux_select_out = select_c;
-						regfile_we_out = high;
-						wrdata_mux_select = high;
-					end
-				//default R type
+	always @(*) begin
+		// handle R type
+		if (opcode_in == 6'b000000) begin
+			pc_enable_out = high;	
+			alu_func_out = func_in[5:0];
+			alu_mux_select_out = low;
+			data_mem_re_out = low;
+			data_mem_we_out= low;
+			data_mem_size_out = size_word;
+			data_mem_mux_select_out = low;
+			jmp_brn_mux_select_out = low;
+			jmp_immreg_mux_select_out = low;
+			 brn_mux_select_out = branch_in;
+			jmp_mux_select_out = jump_in;
+			lui_mux_select = low;
+			signed_out = low;
+			extender_mux_select_out = low;
+			//shifts
+			if (func_in[5:3] == 3'b000) begin
+				instr_mux_select_out = select_b;
+				regfile_we_out = high;
+				wrdata_mux_select = low;
+				if (func_in[2] == 1'b0) begin
+					shift_mux_select_out = high;
 				end else begin
-					instr_mux_select_out = select_b;
+					shift_mux_select_out = low;
+				end
+			//jumps
+			end else if (func_in[5:3] == 3'b001) begin
+				shift_mux_select_out = low;
+				if (func_in[0] == 1'b0) begin
+					instr_mux_select_out = select_a;
+					regfile_we_out = low;
+					wrdata_mux_select = low;
+				end else begin
+					instr_mux_select_out = select_c;
 					regfile_we_out = high;
-					shift_mux_select_out = low; 
-					wrdata_mux_select = low;
+					wrdata_mux_select = high;
 				end
-			end 
-		op_addi:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_mux_select_out = high;
-				alu_func_out = func_add;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
+			//default R type
+			end else begin
+				instr_mux_select_out = select_b;
+				regfile_we_out = high;
+				shift_mux_select_out = low; 
 				wrdata_mux_select = low;
-				signed_out = low;				
 			end
-		op_lw:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_add;
-				alu_mux_select_out = high;
-				data_mem_re_out	= high;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = high;	
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;				
-			end
-		op_sw:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= low;
-				alu_func_out = func_add;
-				alu_mux_select_out = high;
-				data_mem_re_out	= low;
-				data_mem_we_out= high;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = high;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;				
-			end
-		op_addui:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_add;
-				alu_mux_select_out = high;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;	
-			end
-		op_andi:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_and;
-				alu_mux_select_out = high;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;				
-			end
-		op_ori:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_or;
-				alu_mux_select_out = high;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;		
-			end
-		op_xori:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_xor;
-				alu_mux_select_out = high;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;		
-			end
-		op_lui:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_or;
-				alu_mux_select_out = high;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = low;
-				wrdata_mux_select = low;
-				signed_out = low;		
-			end
-		op_slti:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_slt;
-				alu_mux_select_out = high;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;		
-			end
-		op_sltiu:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_slt;
-				alu_mux_select_out = high;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;		
-			end		
-	op_beq:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= low;
-				alu_func_out = func_beq;
-				alu_mux_select_out = low;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = high;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;		
-			end
-	op_bne:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= low;
-				alu_func_out = func_bne;
-				alu_mux_select_out = low;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = high;
-				brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;		
-			end
-	op_bltz:
-			begin
-				if(code_in == code_bltz)
-				begin
-					pc_enable_out =	high;	
-					instr_mux_select_out= select_a;
-					regfile_we_out= low;
-					alu_func_out = func_bltz;
-					alu_mux_select_out = low;
-					data_mem_re_out	= low;
-					data_mem_we_out= low;
-					data_mem_size_out = size_word;
-					data_mem_mux_select_out = low;
-					jmp_brn_mux_select_out = low;
-					shift_mux_select_out = low;
-					jmp_immreg_mux_select_out = high;
-					 brn_mux_select_out = branch_in;
-					jmp_mux_select_out = jump_in;
+		// handle  norml I type
+		end else if (opcode_in[5:3] == 3'b001) begin
+			pc_enable_out =	high;	
+			instr_mux_select_out= select_a;
+			regfile_we_out= high;
+			alu_mux_select_out = high;
+			data_mem_re_out	= low;
+			data_mem_we_out= low;
+			data_mem_size_out = size_word;
+			data_mem_mux_select_out = low;
+			jmp_brn_mux_select_out = low;
+			shift_mux_select_out = low;
+			jmp_immreg_mux_select_out = low;
+			brn_mux_select_out = low;
+			jmp_mux_select_out = low;
+			wrdata_mux_select = low;
+			signed_out = low;	
+			// I type variations
+			case (opcode_in[5:0])
+				op_addi: begin
+					alu_func_out = func_add;
 					lui_mux_select = high;
-					wrdata_mux_select = low;
-					signed_out = low;
+					extender_mux_select_out = low;
 				end
-			else
-				begin
-					//handles bgez
-					pc_enable_out =	high;	
-					instr_mux_select_out= select_a;
-					regfile_we_out= low;
-					alu_func_out = func_bgez;
-					alu_mux_select_out = low;
-					data_mem_re_out	= low;
-					data_mem_we_out= low;
-					data_mem_size_out = size_word;
-					data_mem_mux_select_out = low;
-					jmp_brn_mux_select_out = low;
-					shift_mux_select_out = low;
-					jmp_immreg_mux_select_out = high;
-					 brn_mux_select_out = branch_in;
-					jmp_mux_select_out = jump_in;
+				op_addiu: begin
+					alu_func_out = func_add;
 					lui_mux_select = high;
-					wrdata_mux_select = low;
-					signed_out = low;				
+					extender_mux_select_out = low;
 				end
+				op_lui: begin
+					alu_func_out = func_add;
+					lui_mux_select = low;
+					extender_mux_select_out = low;
+				end
+				op_slti: begin
+					alu_func_out = func_slt;
+					lui_mux_select = high;
+					extender_mux_select_out = low;
+				end
+				op_andi: begin
+					alu_func_out = func_and;
+					lui_mux_select = high;
+					extender_mux_select_out = high;
+				end
+				op_ori: begin
+					alu_func_out = func_or;
+					lui_mux_select = high;
+					extender_mux_select_out = high;
+				end
+				op_xori: begin
+					alu_func_out = func_xor;
+					lui_mux_select = high;
+					extender_mux_select_out = high;
+				end
+				default: begin
+					regfile_we_out = low;
+					alu_func_out = func_slt;
+					lui_mux_select = high;
+					extender_mux_select_out = low;
+				end
+			endcase
+		// handle J type
+		end else if (opcode_in[5:1] == 5'b00001) begin
+			pc_enable_out =	high;	
+			alu_func_out = func_jr;
+			alu_mux_select_out = low;
+			data_mem_re_out	= low;
+			data_mem_we_out= low;
+			data_mem_size_out = size_word;
+			data_mem_mux_select_out = low;
+			jmp_brn_mux_select_out = high;
+			shift_mux_select_out = low;
+			jmp_immreg_mux_select_out = high;
+			 brn_mux_select_out = low;
+			jmp_mux_select_out = high;
+			lui_mux_select = high;
+			wrdata_mux_select = high;
+			signed_out = low;		
+			extender_mux_select_out = low;
+			// j
+			if (opcode_in[0] == 0) begin
+				instr_mux_select_out = select_a;
+				regfile_we_out = low;
+			// jal
+			end else begin
+				instr_mux_select_out = select_c;
+				regfile_we_out = high;
 			end
-			
-	op_blez:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= low;
-				alu_func_out = func_blez;
-				alu_mux_select_out = low;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = high;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;		
+		// handle branches (I type)
+		end else if (opcode_in[5:2] == 5'b0001) begin
+			pc_enable_out =	high;	
+			instr_mux_select_out= select_a;
+			regfile_we_out= low;
+			alu_mux_select_out = low;
+			data_mem_re_out	= low;
+			data_mem_we_out= low;
+			data_mem_size_out = size_word;
+			data_mem_mux_select_out = low;
+			jmp_brn_mux_select_out = low;
+			shift_mux_select_out = low;
+			jmp_immreg_mux_select_out = high;
+			 brn_mux_select_out = branch_in;
+			jmp_mux_select_out = low;
+			lui_mux_select = high;
+			wrdata_mux_select = low;
+			signed_out = low;	
+			extender_mux_select_out = low;
+			// func code variations
+			case (opcode_in[5:0])
+				op_beq: begin
+					alu_func_out = func_beq;
+				end
+				op_bne: begin
+					alu_func_out = func_bne;
+				end
+				op_blez: begin
+					alu_func_out = func_blez;
+				end
+				op_bltz_bgez: begin
+					if (code_in == code_bltz) begin
+						alu_func_out = func_bltz;
+					end else begin
+						alu_func_out = func_bgez;
+					end
+				end
+				op_bgtz: begin
+					alu_func_out = func_bgtz;
+				end
+				default: begin
+					alu_func_out = func_add;
+				end
+			endcase
+		// handle memory
+		end else if (opcode_in[5:4] == 2'b10) begin
+			pc_enable_out =	high;	
+			instr_mux_select_out= select_a;
+			alu_func_out = func_add;
+			alu_mux_select_out = high;
+			data_mem_size_out = opcode_in[1:0];
+			data_mem_mux_select_out = high;
+			jmp_brn_mux_select_out = low;
+			shift_mux_select_out = low;
+			jmp_immreg_mux_select_out = low;
+			 brn_mux_select_out = branch_in;
+			jmp_mux_select_out = jump_in;
+			lui_mux_select = high;
+			wrdata_mux_select = low;
+			extender_mux_select_out = low;
+			// stores
+			if (opcode_in[3] == 1'b1) begin
+				regfile_we_out = low;
+				data_mem_re_out = low;
+				data_mem_we_out = high;
+				signed_out = low;
+			// loads
+			end else begin
+				regfile_we_out = high;
+				data_mem_re_out = high;
+				data_mem_we_out = low;
+				signed_out = opcode_in[2];
 			end
-	op_bgtz:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= low;
-				alu_func_out = func_bgtz;
-				alu_mux_select_out = low;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = high;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;		
-			end
-	op_j:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= low;
-				alu_func_out = func_jr; // handles j case as well
-				alu_mux_select_out = low;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = high;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = high;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;		
-			end
-	op_jal:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_c;
-				regfile_we_out= high;
-				alu_func_out = func_jalr; // handles jal case as well
-				alu_mux_select_out = low;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = low;
-				jmp_brn_mux_select_out = high;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = high;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = high;
-				signed_out = low;		
-			end	
-	op_lb:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_add;
-				alu_mux_select_out = high;
-				data_mem_re_out	= high;
-				data_mem_we_out= low;
-				data_mem_size_out = size_byte;
-				data_mem_mux_select_out = high;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;	
-			end
-	op_lh:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_add;
-				alu_mux_select_out = high;
-				data_mem_re_out	= high;
-				data_mem_we_out= low;
-				data_mem_size_out = size_hw;
-				data_mem_mux_select_out = high;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;	
-			end
-	op_lbu:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_add;
-				alu_mux_select_out = high;
-				data_mem_re_out	= high;
-				data_mem_we_out= low;
-				data_mem_size_out = size_byte;
-				data_mem_mux_select_out = high;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = high;	
-			end
-	op_lhu:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= high;
-				alu_func_out = func_add;
-				alu_mux_select_out = high;
-				data_mem_re_out	= high;
-				data_mem_we_out= low;
-				data_mem_size_out = size_hw;
-				data_mem_mux_select_out = high;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = high;	
-			end
-	op_sb:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= low;
-				alu_func_out = func_add;
-				alu_mux_select_out = high;
-				data_mem_re_out	= low;
-				data_mem_we_out= high;
-				data_mem_size_out = size_byte;
-				data_mem_mux_select_out = high;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;	
-			end
-	op_sh:
-			begin
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_a;
-				regfile_we_out= low;
-				alu_func_out = func_add;
-				alu_mux_select_out = high;
-				data_mem_re_out	= low;
-				data_mem_we_out= high;
-				data_mem_size_out = size_hw;
-				data_mem_mux_select_out = high;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;	
-			end			
-	default:  
-			begin
-				// This is a nop
-				pc_enable_out =	high;	
-				instr_mux_select_out= select_b;
-				regfile_we_out= low;
-				alu_mux_select_out = high;
-				alu_func_out = func_add;
-				data_mem_re_out	= low;
-				data_mem_we_out= low;
-				data_mem_size_out = size_word;
-				data_mem_mux_select_out = high;
-				jmp_brn_mux_select_out = low;
-				shift_mux_select_out = low;
-				jmp_immreg_mux_select_out = low;
-				 brn_mux_select_out = branch_in;
-				jmp_mux_select_out = jump_in;
-				lui_mux_select = high;
-				wrdata_mux_select = low;
-				signed_out = low;	
-				$display("Error in opconde_in %x", opcode_in[5:0]); 
-			end
-		endcase
+		// default nop-add
+		end else begin
+			pc_enable_out = high;	
+			alu_func_out = func_add;
+			alu_mux_select_out = low;
+			data_mem_re_out = low;
+			data_mem_we_out= low;
+			data_mem_size_out = size_word;
+			data_mem_mux_select_out = low;
+			jmp_brn_mux_select_out = low;
+			jmp_immreg_mux_select_out = low;
+			 brn_mux_select_out = low;
+			jmp_mux_select_out = low;
+			lui_mux_select = low;
+			signed_out = low;
+			extender_mux_select_out = low;
+			instr_mux_select_out = select_b;
+			regfile_we_out = low;
+			shift_mux_select_out = low; 
+			wrdata_mux_select = low;
+		end
 	end
 endmodule
