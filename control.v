@@ -263,13 +263,6 @@ module control(
 				op_blez: begin
 					alu_func_out = func_blez;
 				end
-				op_bltz_bgez: begin
-					if (code_in == code_bltz) begin
-						alu_func_out = func_bltz;
-					end else begin
-						alu_func_out = func_bgez;
-					end
-				end
 				op_bgtz: begin
 					alu_func_out = func_bgtz;
 				end
@@ -305,6 +298,30 @@ module control(
 				data_mem_re_out = high;
 				data_mem_we_out = low;
 				signed_out = opcode_in[2];
+			end
+		// bltz and begz sadly need their own case... poor mips design...
+		end else if (opcode_in == op_bltz_bgez) begin
+			pc_enable_out =	high;	
+			instr_mux_select_out= select_a;
+			regfile_we_out= low;
+			alu_mux_select_out = low;
+			data_mem_re_out	= low;
+			data_mem_we_out= low;
+			data_mem_size_out = size_word;
+			data_mem_mux_select_out = low;
+			jmp_brn_mux_select_out = low;
+			shift_mux_select_out = low;
+			jmp_immreg_mux_select_out = high;
+			 brn_mux_select_out = branch_in;
+			jmp_mux_select_out = low;
+			lui_mux_select = high;
+			wrdata_mux_select = low;
+			signed_out = low;	
+			extender_mux_select_out = low;
+			if (code_in == code_bltz) begin
+				alu_func_out = func_bltz;
+			end else begin
+				alu_func_out = func_bgez;
 			end
 		// default nop-add
 		end else begin

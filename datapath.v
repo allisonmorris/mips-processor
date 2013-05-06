@@ -177,7 +177,7 @@ module datapath(
 		.mux_out(shift_mux_out));
 	
 	// sign extender -- extend shamt to 32 bits
-	unsignExtend #(.W(5)) shiftExtender (.i_in(instr_rom_out[11:7]), .extend_out(shift_extend_out));
+	unsignExtend #(.W(5)) shiftExtender (.i_in(instr_rom_out[10:6]), .extend_out(shift_extend_out));
 	
 	//ALU
 	alu math (.Func_in(alu_func_in), .A_in(shift_mux_out), .B_in(alu_mux_out), .O_out(alu_out), .Branch_out(alu_branch_out), 
