@@ -53,12 +53,20 @@ module datapath(
 	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram1.memh";
 	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram2.memh";
 	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab3-test.data_ram3.memh";
-	 */
+	 
 	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.rom.memh";
 	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
+	
+	*/
+	
+	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.inst_rom.memh";
+	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram0.memh";
+	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram1.memh";
+	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram2.memh";
+	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram3.memh";
 	
 	/* Bob's memory parameters */
 	/*
@@ -196,7 +204,7 @@ module datapath(
 	
 	// data memory loader -- fore correcting loads
 	dataMemoryLoader dmloader (._in(data_mem_out), .size_in(data_mem_size_in), .signed_in(data_mem_signed_in), 
-		._out(mem_loader_out));
+		._out(mem_loader_out), .offset_in(alu_out[1:0]));
 	
 	//Data Memory
 	data_memory
