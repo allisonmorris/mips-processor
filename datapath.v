@@ -60,13 +60,28 @@ module datapath(
 	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 	
-	*/
+	
 	
 	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.inst_rom.memh";
 	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram0.memh";
 	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram1.memh";
 	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram2.memh";
 	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.data_ram3.memh";
+	*/
+	
+	/*
+	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/fib.inst_rom.memh";
+	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/fib.data_ram0.memh";
+	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/fib.data_ram1.memh";
+	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/fib.data_ram2.memh";
+	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/fib.data_ram3.memh";
+	*/
+	
+	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/branchdelay.inst_rom.memh";
+	parameter data_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
+	parameter data_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
+	parameter data_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
+	parameter data_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 	
 	/* Bob's memory parameters */
 	/*
