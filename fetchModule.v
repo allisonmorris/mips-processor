@@ -27,6 +27,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 	wire [5:0]		opcode, func, alu_func;
 	wire [4:0]		code;
 	wire [1:0]		mem_size;
+	reg [31:0]		nop;
 	
 	assign opcode = rom_out[31:26];
 	assign func = rom_out[6:0];
@@ -51,7 +52,10 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 	assign bundle_out[24] = regfile_we;
 	assign bundle_out[25] = reg_write_data_mux_sel;
 	assign bundle_out[26] = //pc_inc_en??
+	
 	//Need no op instruction
+	assign nop = 32'b00110100000000000000000000000000; // ori $zero,$zero,0
+	
 	
 	
 	register #(.W(32)) next_pc_reg (.clk(clk), .reset(reset), .enable(1'b1), .data_in(next_pc_in), .q_out(next_pc_out));
