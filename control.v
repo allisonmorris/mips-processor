@@ -23,7 +23,8 @@ module control(
 	output reg lui_mux_select,
 	output reg wrdata_mux_select,
 	output reg signed_out,
-	output reg extender_mux_select_out
+	output reg extender_mux_select_out,
+	output reg nop_out
 	);
 
 	//Opcode constants

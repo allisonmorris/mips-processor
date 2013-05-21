@@ -5,9 +5,10 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 	wire [31:0] 	next_pc,
 						pc_seq,
 						pc_Adder_out,
-						rom_out;
+						rom_out,
+						nop_mux_out;
 	wire				pc_en,
-						pc_inc_en;
+						pc_inc_en,
 						jump_mux_out,
 						reg_write_data_mux_sel,
 						reg_write_reg_mux_sel,
@@ -23,13 +24,17 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 						data_mem_signed,
 						alu_branch,
 						alu_jump,
-						extender_mux_sel
+						extender_mux_sel,
+						nop_mux_en,
+						shift_mux_sel,
+						jump_imm_reg_mux_sel
 						;
 	wire [5:0]		opcode, func, alu_func;
 	wire [4:0]		code;
 	wire [1:0]		mem_size;
 	reg [31:0]		nop;
 	
+	assign instruction_out = nop_mux_out;
 	assign opcode = rom_out[31:26];
 	assign func = rom_out[6:0];
 	assign code = rom_out[21:17];
@@ -37,7 +42,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 	assign bundle_out[1] = reg_write_data_mux_sel;
 	assign bundle_out[2] = data_mem_re;
 	assign bundle_out[3] = data_mem_we;
-	assign bundle_out[5:4] = size;
+	assign bundle_out[5:4] = mem_size;
 	assign bundle_out[6] = data_mem_signed;
 	assign bundle_out[7] = data_mem_mux_sel;
 	assign bundle_out[14:8] = func;
@@ -62,6 +67,9 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 	//Modules
 	// Need to add instruction / no op mux
 	
+	twoInMux#(.W(32)) nopMux (.a_in(rom_out), .b_in(nop), .mux_out(nop_mux_out), 
+		.select(nop_mux_en)); 
+	
 	//PC Register
 	pc pcReg (.clk(clk),.reset(reset), .enable(pc_inc_en), .data_in(next_pc_in), .q_out(next_pc));
 	
@@ -72,7 +80,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 	inst_rom#(.INIT_PROGRAM(inst_mem_path), .ADDR_WIDTH(10)) rom (.clock(clock), .reset(reset), .addr_in(next_pc),
 		.data_out(rom_out));	
 
-	//Control Moduel	
+	//Control Module	
 	control cp (.opcode_in(opcode), 
 					.func_in(func), 
 					.pc_enable_out(pc_en), 
@@ -95,6 +103,8 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 					.branch_in(alu_branch),
 					.jump_in(alu_jump),
 					.code_in(code),
-					.extender_mux_select_out(extender_mux_sel));
+					.extender_mux_select_out(extender_mux_sel),
+					.nop_out(nop_mux_en)
+					);
 
 endmodule
