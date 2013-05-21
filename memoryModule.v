@@ -24,7 +24,7 @@ module MemoryModule (
 		  ram_read_en, 
 		  ram_write_en;
 	wire [1:0] ram_data_size; 
-	wire[7:0] bundle;
+	wire [7:0] bundle;
 	wire [31:0] mem_loader_out, address, reg_b;
 	
 	//Assign bundle bits to wires
@@ -41,7 +41,7 @@ module MemoryModule (
 	parameter ram_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 		
 	//Registers for Inputs
-	register #(.W(13)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));
+	register #(.W(8)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));
 	register #(.W(32)) pc (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_in), .q_out(pc_seq_out));
 	register #(.W(32)) address_reg (.clk(clk), .reset(reset), .enable(1'b1), .data_in(address_in), .q_out(address));
 	register #(.W(32)) register_b (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_b_in), .q_out(reg_b));
@@ -50,7 +50,7 @@ module MemoryModule (
 	
 	//Data memory mux POST-ALU
 	twoInMux#(.W(32)) dataMemMux (.a_in(address), .b_in(mem_loader_out), .mux_out(skip_ram_mux_out), 
-		.select(skip_ram_mux_in)); 
+		.select(skip_ram_mux_sel)); 
 		
 	dataMemoryLoader dmloader (._in(data_mem_out), .size_in(ram_data_size), .signed_in(ram_data_signed), 
 		._out(mem_loader_out), .offset_in(address[1:0]));
@@ -61,8 +61,8 @@ module MemoryModule (
 		.INIT_PROGRAM1(ram_mem1_path),
 		.INIT_PROGRAM2(ram_mem2_path),
 		.INIT_PROGRAM3(ram_mem3_path))
-		ram (.clock(clock), .reset(reset), .addr_in(address), 
-		.writedata_in(reb_b), .we_in(ram_write_en),.readdata_out(data_mem_out),
+		ram (.clock(clk), .reset(reset), .addr_in(address), 
+		.writedata_in(reg_b), .we_in(ram_write_en),.readdata_out(data_mem_out),
 		.re_in(ram_read_en), .size_in(ram_data_size), 
 		.serial_in(serial_in), .serial_ready_in(serial_ready_in), .serial_valid_in(serial_valid_in), 
 		.serial_out(serial_out), .serial_rden_out(serial_rden_out), .serial_wren_out(serial_wren_out));

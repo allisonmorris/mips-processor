@@ -1,5 +1,5 @@
 
-module DecodeModule (input clk, input reset, input bundle_in [25:0], output reg [13:0] bundle_out,
+module DecodeModule (input clk, input reset, input [25:0] bundle_in, output reg [13:0] bundle_out,
 		input [31:0] pc_seq_in, input [31:0] pc_seq_2_in, output [31:0] pc_seq_out, input [31:0] instr_in,
 		output [31:0] operand_a_out, output [31:0] operand_b_out, output [31:0] reg_read2_out, 
 		output [4:0] reg_write_dest_out, input [4:0] reg_write_dest_in, input [31:0] reg_write_data_in);
@@ -7,7 +7,7 @@ module DecodeModule (input clk, input reset, input bundle_in [25:0], output reg 
 	
 	// input wires for after registers
 	wire [4:0] reg_write_dest_2;
-	wire [24:0] bundle;
+	wire [25:0] bundle;
 	wire [31:0] instr, pc_seq, pc_seq_2, reg_write_data;
 	
 	// control wires
@@ -45,12 +45,13 @@ module DecodeModule (input clk, input reset, input bundle_in [25:0], output reg 
 					jump_imm_shifted,
 					jump_imm_concatenated,
 					data_imm_upshifted,
-					skip_imm_upshift;
+					skip_imm_upshift,
 					pc_branch_sum,
 					branch_address,
 					jump_address,
 					jump_imm_reg,
-					reg_write_data_muxed;
+					reg_write_data_muxed,
+					pc_writeback_sum;
 	wire [5:0] reg_write_dest;
 
 	
@@ -83,12 +84,12 @@ module DecodeModule (input clk, input reset, input bundle_in [25:0], output reg 
 	assign reg_write_dest_out = reg_write_dest;
 	
 	// registers
-	register #(.W(25)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));	
+	register #(.W(26)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));	
 	register #(.W(32)) pc (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_in), .q_out(pc_seq));
 	register #(.W(32)) pc2 (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_2_in), .q_out(pc_seq_2));
-	register #(.W(32)) instr (.clk(clk), .reset(reset), .enable(1'b1), .data_in(instr_in), .q_out(instr));
+	register #(.W(32)) instrReg (.clk(clk), .reset(reset), .enable(1'b1), .data_in(instr_in), .q_out(instr));
 	register #(.W(32)) regWriteData (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_data_in), .q_out(reg_write_data));
-	register #(.W(5)) regWriteData (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_dest_in), .q_out(reg_write_dest_2));
+	register #(.W(5)) regWriteDest (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_dest_in), .q_out(reg_write_dest_2));
 	
 	// modules
 	
@@ -145,6 +146,8 @@ module DecodeModule (input clk, input reset, input bundle_in [25:0], output reg 
 	
 	// writeback modules
 	
-	twoInMux #(.W(32)) regWriteDataMux (.a_in(reg_write_data), .b_in(pc_seq_2), .select(reg_write_data_mux_sel), .mux_out(reg_write_data_muxed));
+	adder pcWritebackAdder (.a_in(pc_seq_2), .b_in(32'h4), ._out(pc_writeback_sum));
+	
+	twoInMux #(.W(32)) regWriteDataMux (.a_in(reg_write_data), .b_in(pc_writeback_sum), .select(reg_write_data_mux_sel), .mux_out(reg_write_data_muxed));
 	
 endmodule
