@@ -1,5 +1,5 @@
 
-module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg [31:0] instruction_out, output reg [25:0] bundle_out,
+module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:0] instruction_out, output [25:0] bundle_out,
 	output [31:0] pc_seq_out);
 
 	wire [31:0] 	next_pc,
@@ -32,7 +32,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 	wire [5:0]		opcode, func, alu_func;
 	wire [4:0]		code;
 	wire [1:0]		mem_size;
-	reg [31:0]		nop;
+	wire [31:0]		nop;
 	
 	assign instruction_out = nop_mux_out;
 	assign opcode = rom_out[31:26];
@@ -63,6 +63,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 	//Need no op instruction
 	assign nop = 32'b00110100000000000000000000000000; // ori $zero,$zero,0
 	
+	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/branchdelay.inst_rom.memh";
 
 	//Modules
 	// Need to add instruction / no op mux
@@ -106,5 +107,4 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 					.extender_mux_select_out(extender_mux_sel),
 					.nop_out(nop_mux_en)
 					);
-
 endmodule
