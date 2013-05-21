@@ -2,12 +2,13 @@
 module DecodeModule (input clk, input reset, input bundle_in [24:0], output reg [12:0] bundle_out,
 		input [31:0] pc_seq_in, input [31:0] pc_seq_2_in, output [31:0] pc_seq_out, input [31:0] instr_in,
 		output [31:0] operand_a_out, output [31:0] operand_b_out, output [31:0] reg_read2_out, 
-		output [4:0] reg_write_dest_out);
+		output [4:0] reg_write_dest_out, input [4:0] reg_write_dest_in, input [31:0] reg_write_data_in);
 
 	
 	// input wires for after registers
+	wire [4:0] reg_write_dest_2;
 	wire [24:0] bundle;
-	wire [31:0] instr, pc_seq, pc_seq_2;
+	wire [31:0] instr, pc_seq, pc_seq_2, reg_write_data;
 	
 	// control wires
 	wire [5:0] alu_func;
@@ -48,7 +49,8 @@ module DecodeModule (input clk, input reset, input bundle_in [24:0], output reg 
 					pc_branch_sum,
 					branch_address,
 					jump_address,
-					jump_imm_reg;
+					jump_imm_reg,
+					reg_write_data_muxed;
 	wire [5:0] reg_write_dest;
 
 	
@@ -85,16 +87,18 @@ module DecodeModule (input clk, input reset, input bundle_in [24:0], output reg 
 	register #(.W(32)) pc (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_in), .q_out(pc_seq));
 	register #(.W(32)) pc2 (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_2_in), .q_out(pc_seq_2));
 	register #(.W(32)) instr (.clk(clk), .reset(reset), .enable(1'b1), .data_in(instr_in), .q_out(instr));
+	register #(.W(32)) regWriteData (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_data_in), .q_out(reg_write_data));
+	register #(.W(5)) regWriteData (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_dest_in), .q_out(reg_write_dest_2));
 	
 	// modules
 	
 	fourInMux#(.W(5)) regWriteDestMux (.a_in(instr_rt), .b_in(instr_rd), 
 		.c_in(5'b11111), .d_in(5'b00000), .mux_out(reg_write_dest), .select(reg_write_dest_mux_sel)); 
 	
-	// register file NEED WIRES!!
+	// register file 
 	regfile regs (.clk(clk), .reset(reset), .enable(reg_write_en), .readReg1_in(instr_rs), 
-		.readReg2_in(instr_rt), .writeReg_in(instr_mux_out), 
-		.writeData_in(wrdata_mux_out), .data1_out(reg_read1), .data2_out(reg_read2));
+		.readReg2_in(instr_rt), .writeReg_in(reg_write_dest_2), 
+		.writeData_in(reg_write_data_muxed), .data1_out(reg_read1), .data2_out(reg_read2));
 	
 	unsignExtend #(.W(5)) shamtExtender (.i_in(instr_shamt), .extend_out(shamt_extended));
 	
@@ -138,5 +142,9 @@ module DecodeModule (input clk, input reset, input bundle_in [24:0], output reg 
 		
 	twoInMux #(.W(32)) jumpMux (.a_in(branch_address), .b_in(jump_imm_reg), .select(jump_mux_sel), 
 		.mux_out(jump_address));
+	
+	// writeback modules
+	
+	twoInMux #(.W(32)) regWriteDataMux (.a_in(reg_write_data), .b_in(pc_seq_2), .select(reg_write_data_mux_sel), .mux_out(reg_write_data_muxed));
 	
 endmodule
