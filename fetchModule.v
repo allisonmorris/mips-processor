@@ -1,8 +1,9 @@
 
-module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg [31:0] instruction_out, output reg [26:0] bundle_out);
+module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg [31:0] instruction_out, output reg [25:0] bundle_out,
+	output [31:0] pc_seq_out);
 
-	wire [31:0] 	next_pc_out,
-						pc_out,
+	wire [31:0] 	next_pc,
+						pc_seq,
 						pc_Adder_out,
 						rom_out;
 	wire				pc_en,
@@ -51,26 +52,24 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output reg 
 	assign bundle_out[23] = jump_imm_reg_mux_sel;
 	assign bundle_out[24] = regfile_we;
 	assign bundle_out[25] = reg_write_data_mux_sel;
-	assign bundle_out[26] = //pc_inc_en??
+	
+	assign pc_seq_out = pc_seq;
 	
 	//Need no op instruction
 	assign nop = 32'b00110100000000000000000000000000; // ori $zero,$zero,0
 	
-	
-	
-	register #(.W(32)) next_pc_reg (.clk(clk), .reset(reset), .enable(1'b1), .data_in(next_pc_in), .q_out(next_pc_out));
 
 	//Modules
 	// Need to add instruction / no op mux
 	
 	//PC Register
-	pc pcReg (.clk(clock),.reset(reset), .enable(pc_en_in), .data_in(jump_mux_out), .q_out(pc_out));
+	pc pcReg (.clk(clk),.reset(reset), .enable(pc_inc_en), .data_in(next_pc_in), .q_out(next_pc));
 	
 	// PC Adder
-	pcAdder pcInc (.data_in(pc_out),.pc_out(pc_adder_out));
+	pcAdder pcInc (.data_in(next_pc),.pc_out(pc_seq));
 
 	//Instruction Rom
-	inst_rom#(.INIT_PROGRAM(inst_mem_path), .ADDR_WIDTH(10)) rom (.clock(clock), .reset(reset), .addr_in(pc_out),
+	inst_rom#(.INIT_PROGRAM(inst_mem_path), .ADDR_WIDTH(10)) rom (.clock(clock), .reset(reset), .addr_in(next_pc),
 		.data_out(rom_out));	
 
 	//Control Moduel	

@@ -1,5 +1,5 @@
 
-module DecodeModule (input clk, input reset, input bundle_in [24:0], output reg [12:0] bundle_out,
+module DecodeModule (input clk, input reset, input bundle_in [25:0], output reg [13:0] bundle_out,
 		input [31:0] pc_seq_in, input [31:0] pc_seq_2_in, output [31:0] pc_seq_out, input [31:0] instr_in,
 		output [31:0] operand_a_out, output [31:0] operand_b_out, output [31:0] reg_read2_out, 
 		output [4:0] reg_write_dest_out, input [4:0] reg_write_dest_in, input [31:0] reg_write_data_in);
@@ -55,18 +55,18 @@ module DecodeModule (input clk, input reset, input bundle_in [24:0], output reg 
 
 	
 	// assign controls
-	assign alu_func = bundle[12:7];
-	assign reg_write_dest_mux_sel = bundle[14:13];
-	assign alu_in_a_mux_sel = bundle[15];
-	assign alu_in_b_mux_sel = bundle[16];
-	assign skip_imm_upshift_mux_sel = bundle[17];
-	assign imm_signed_mux_sel = bundle[18];
-	assign jump_branch_mux_sel = bundle[19];
-	assign branch_mux_sel = bundle[20];
-	assign jump_mux_sel = bundle[21];
-	assign jump_imm_reg_mux_sel = bundle[22];
-	assign reg_write_en = bundle[23];
-	assign reg_write_data_mux_sel = bundle[24];
+	assign alu_func = bundle[13:8];
+	assign reg_write_dest_mux_sel = bundle[15:14];
+	assign alu_in_a_mux_sel = bundle[16];
+	assign alu_in_b_mux_sel = bundle[17];
+	assign skip_imm_upshift_mux_sel = bundle[18];
+	assign imm_signed_mux_sel = bundle[19];
+	assign jump_branch_mux_sel = bundle[20];
+	assign branch_mux_sel = bundle[21];
+	assign jump_mux_sel = bundle[22];
+	assign jump_imm_reg_mux_sel = bundle[23];
+	assign reg_write_en = bundle[24];
+	assign reg_write_data_mux_sel = bundle[25];
 	
 	// assign instruction wires
 	assign instr_jump_imm = instr[25:0];
