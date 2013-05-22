@@ -1,5 +1,5 @@
 
-module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:0] instruction_out, output [24:0] bundle_out,
+module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:0] instruction_out, output [23:0] bundle_out,
 	output [31:0] pc_seq_out);
 
 	wire [31:0] 	next_pc,
@@ -31,11 +31,11 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	wire [4:0]		code;
 	wire [1:0]		mem_size;
 	wire [31:0]		nop;
-	wire [24:0]		nop_bundle, bundle, bundle_mux_out;
+	wire [23:0]		nop_bundle, bundle, bundle_mux_out;
 	
 	assign instruction_out = nop_mux_out;
 	assign opcode = rom_out[31:26];
-	assign func = rom_out[6:0];
+	assign func = rom_out[5:0];
 	assign code = rom_out[21:17];
 	assign bundle[0] = regfile_we;
 	assign bundle[1] = reg_write_data_mux_sel;
@@ -44,7 +44,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	assign bundle[5:4] = mem_size;
 	assign bundle[6] = data_mem_signed;
 	assign bundle[7] = data_mem_mux_sel;
-	assign bundle[14:8] = func;
+	assign bundle[13:8] = func;
 	assign bundle[15:14] = reg_write_reg_mux_sel;
 	assign bundle[16] = shift_mux_sel;
 	assign bundle[17] = alu_mux_sel;
@@ -54,19 +54,19 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	assign bundle[21] = brn_mux_sel;
 	assign bundle[22] = jump_mux_sel;
 	assign bundle[23] = jump_imm_reg_mux_sel;
-	assign bundle[24] = regfile_we;
+	// assign bundle[24] = regfile_we;
 	assign bundle_out = bundle_mux_out;
 	assign pc_seq_out = pc_seq;
 	
 	//Need no op instruction
 	assign nop = 32'b00110100000000000000000000000000; // ori $zero,$zero,0
-	assign nop_bundle = 25'b100001100010000000110001; //leave as binary for debug.
+	assign nop_bundle = 24'b00001100010000000110001; //leave as binary for debug.
 	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/branchdelay.inst_rom.memh";
 
 	//Modules
 	// Need to add instruction / no op mux
 	
-	twoInMux#(.W(25)) bundleMux (.a_in(bundle), .b_in(nop_bundle), .mux_out(bundle_mux_out), 
+	twoInMux#(.W(24)) bundleMux (.a_in(bundle), .b_in(nop_bundle), .mux_out(bundle_mux_out), 
 		.select(pc_inc_en)); 
 		
 	twoInMux#(.W(32)) nopMux (.a_in(rom_out), .b_in(nop), .mux_out(nop_mux_out), 
@@ -79,7 +79,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	pcAdder pcInc (.data_in(next_pc),.pc_out(pc_seq));
 
 	//Instruction Rom
-	inst_rom#(.INIT_PROGRAM(inst_mem_path), .ADDR_WIDTH(10)) rom (.clock(clock), .reset(reset), .addr_in(next_pc),
+	inst_rom#(.INIT_PROGRAM(inst_mem_path), .ADDR_WIDTH(10)) rom (.clock(clk), .reset(reset), .addr_in(next_pc),
 		.data_out(rom_out));	
 
 	//Control Module	

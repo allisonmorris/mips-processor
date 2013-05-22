@@ -1,8 +1,8 @@
 
-module DecodeModule (input clk, input reset, input [25:0] bundle_in, output reg [13:0] bundle_out,
+module DecodeModule (input clk, input reset, input [25:0] bundle_in, output [13:0] bundle_out,
 		input [31:0] pc_seq_in, input [31:0] pc_seq_2_in, output [31:0] pc_seq_out, input [31:0] instr_in,
 		output [31:0] operand_a_out, output [31:0] operand_b_out, output [31:0] reg_read2_out, 
-		output [4:0] reg_write_dest_out, input [4:0] reg_write_dest_in, input [31:0] reg_write_data_in);
+		output [4:0] reg_write_dest_out, input [4:0] reg_write_dest_in, input [31:0] reg_write_data_in, output [31:0] jump_address_out);
 
 	
 	// input wires for after registers
@@ -52,7 +52,7 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output reg 
 					jump_imm_reg,
 					reg_write_data_muxed,
 					pc_writeback_sum;
-	wire [5:0] reg_write_dest;
+	wire [4:0] reg_write_dest;
 
 	
 	// assign controls
@@ -63,7 +63,7 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output reg 
 	assign skip_imm_upshift_mux_sel = bundle[18];
 	assign imm_signed_mux_sel = bundle[19];
 	assign jump_branch_mux_sel = bundle[20];
-	assign branch_mux_sel = bundle[21];
+	// assign branch_mux_sel = bundle[21];
 	assign jump_mux_sel = bundle[22];
 	assign jump_imm_reg_mux_sel = bundle[23];
 	assign reg_write_en = bundle[24];
@@ -72,8 +72,8 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output reg 
 	// assign instruction wires
 	assign instr_jump_imm = instr[25:0];
 	assign instr_data_imm = instr[15:0];
-	assign instr_func = instr[5:0];
-	assign instr_opcode = instr[31:26];
+	// assign instr_func = instr[5:0];
+	// assign instr_opcode = instr[31:26];
 	assign instr_rs = instr[25:21];
 	assign instr_rt = instr[20:16];
 	assign instr_rd = instr[15:11];
@@ -82,6 +82,8 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output reg 
 	// assign outputs
 	assign reg_read2_out = reg_read2;
 	assign reg_write_dest_out = reg_write_dest;
+	assign pc_seq_out = pc_seq;
+	assign bundle_out[13:0] = bundle[13:0];
 	
 	// registers
 	register #(.W(26)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));	
@@ -103,7 +105,7 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output reg 
 	
 	unsignExtend #(.W(5)) shamtExtender (.i_in(instr_shamt), .extend_out(shamt_extended));
 	
-	upShifter dataImmUpshifter (._in(instr_imm), ._out(data_imm_upshifted));
+	upShifter dataImmUpshifter (._in(instr_data_imm), ._out(data_imm_upshifted));
 	
 	twoInMux #(.W(32)) skipImmUpshiftMux(.a_in(data_imm_upshifted), .b_in(imm_signed), .select(skip_imm_upshift_mux_sel), 
 		.mux_out(skip_imm_upshift));
@@ -138,11 +140,11 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output reg 
 	twoInMux #(.W(32)) branchMux(.a_in(pc_seq), .b_in(pc_branch_sum), .select(branch_mux_sel), 
 		.mux_out(branch_address));
 		
-	twoInMux #(.W(32)) jumpImmRegMux(.a_in(reg_read1), .b_in(jump_imm_concatenated), .select(jump_imm_reg_mux_sel_in), 
+	twoInMux #(.W(32)) jumpImmRegMux(.a_in(reg_read1), .b_in(jump_imm_concatenated), .select(jump_imm_reg_mux_sel), 
 		.mux_out(jump_imm_reg));
 		
 	twoInMux #(.W(32)) jumpMux (.a_in(branch_address), .b_in(jump_imm_reg), .select(jump_mux_sel), 
-		.mux_out(jump_address));
+		.mux_out(jump_address_out));
 	
 	// writeback modules
 	

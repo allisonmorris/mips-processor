@@ -6,8 +6,8 @@ module MemoryModule (
 	input [31:0] address_in, 
 	input [31:0] reg_b_in, 
 	input [4:0] write_reg_in,
-	output reg [4:0] write_reg_out,
-	output reg [1:0] bundle_out,
+	output [4:0] write_reg_out,
+	output [1:0] bundle_out,
 	input [31:0] pc_seq_in, 
 	output [31:0] pc_seq_out, 
 	output [31:0] skip_ram_mux_out,
@@ -25,7 +25,7 @@ module MemoryModule (
 		  ram_write_en;
 	wire [1:0] ram_data_size; 
 	wire [7:0] bundle;
-	wire [31:0] mem_loader_out, address, reg_b;
+	wire [31:0] mem_loader_out, address, reg_b, data_mem_out;
 	
 	//Assign bundle bits to wires
 	assign skip_ram_mux_sel = bundle[7];
@@ -33,6 +33,7 @@ module MemoryModule (
 	assign ram_data_signed = bundle[6];
 	assign ram_read_en = bundle[2];
 	assign ram_write_en = bundle[3];
+	assign bundle_out[1:0] = bundle[1:0];
 	
 	// data mem paths
 	parameter ram_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";

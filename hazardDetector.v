@@ -34,54 +34,70 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 			reg_dest[1] <= reg_dest[0];
 			
 			if ((instr_opcode[5:3] == 3'b001) || (instr_opcode[5:3] == 3'b100)) begin
-				reg_dest[0] <= instr_rt;
 				if (instr_rt == zero) begin
 					stall_out <= no;
+					reg_dest[0] <= zero;
 				end else begin
 					if (reg_dest[1] == instr_rt) begin
 						stall_out <= yes;
+						reg_dest[0] <= zero;
 					end else if (reg_dest[2] == instr_rt) begin
 						stall_out <= yes;
+						reg_dest[0] <= zero;
 					end else if (reg_dest[3] == instr_rt) begin
 						stall_out <= yes;
+						reg_dest[0] <= zero;
 					end else if (reg_dest[4] == instr_rt) begin
 						stall_out <= yes;
+						reg_dest[0] <= zero;
 					end else begin
 						stall_out <= no;
+						reg_dest[0] <= instr_rt;
 					end
 				end
 			end else if (instr_opcode[5:0] == 6'b000000) begin
 				reg_dest[0] <= instr_rd;
 				if (instr_rd == zero) begin
 					stall_out <= no;
+					reg_dest[0] <= zero;
 				end else begin
 					if (reg_dest[1] == instr_rd) begin
 						stall_out <= yes;
+						reg_dest[0] <= zero;
 					end else if (reg_dest[2] == instr_rd) begin
 						stall_out <= yes;
+						reg_dest[0] <= zero;
 					end else if (reg_dest[3] == instr_rd) begin
 						stall_out <= yes;
+						reg_dest[0] <= zero;
 					end else if (reg_dest[4] == instr_rd) begin
 						stall_out <= yes;
+						reg_dest[0] <= zero;
 					end else begin
 						stall_out <= no;
+						reg_dest[0] <= instr_rd;
 					end
 				end
 			end else if (instr_opcode[5:0] == 6'b000011) begin
 				reg_dest[0] <= ra;
 				if (reg_dest[1] == ra) begin
 					stall_out <= yes;
+					reg_dest[0] <= zero;
 				end else if (reg_dest[2] == ra) begin
 					stall_out <= yes;
+					reg_dest[0] <= zero;
 				end else if (reg_dest[3] == ra) begin
 					stall_out <= yes;
+					reg_dest[0] <= zero;
 				end else if (reg_dest[4] == ra) begin
 					stall_out <= yes;
+					reg_dest[0] <= zero;
 				end else begin
 					stall_out <= no;
+					reg_dest[0] <= ra;
 				end
 			end else begin
-				reg_dest[0] <= 5'b00000;
+				reg_dest[0] <= zero;
 				stall_out <= no;
 			end
 		end
