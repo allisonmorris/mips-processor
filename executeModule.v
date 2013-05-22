@@ -11,8 +11,8 @@ module ExecuteModule (input clk, input reset, input [13:0] bundle_in, output [7:
 	assign alu_func = bundle_in[13:8];
 	assign bundle_out[7:0] = bundle[7:0];
 	
-	register #(.W(5))  reg_write (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_dest_in), .q_out(reg_write_dest_out));
-	register #(.W(14)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));
+	register #(.W(5), .D(5'h00))  reg_write (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_dest_in), .q_out(reg_write_dest_out));
+	register #(.W(14), .D(14'h2531)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));
 	register #(.W(32)) pc (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_in), .q_out(pc_seq_out));
 	register #(.W(32)) reg_a (.clk(clk), .reset(reset), .enable(1'b1), .data_in(a_in), .q_out(a));
 	register #(.W(32)) reg_b (.clk(clk), .reset(reset), .enable(1'b1), .data_in(b_in), .q_out(b));

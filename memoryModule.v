@@ -42,12 +42,11 @@ module MemoryModule (
 	parameter ram_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 		
 	//Registers for Inputs
-	register #(.W(8)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));
+	register #(.W(8), .D(8'h31)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));
 	register #(.W(32)) pc (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_in), .q_out(pc_seq_out));
 	register #(.W(32)) address_reg (.clk(clk), .reset(reset), .enable(1'b1), .data_in(address_in), .q_out(address));
 	register #(.W(32)) register_b (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_b_in), .q_out(reg_b));
-	register #(.W(5)) wr (.clk(clk), .reset(reset), .enable(1'b1), .data_in(write_reg_in), .q_out(write_reg_out));
-	//Need Write Register??
+	register #(.W(5), .D(5'h00)) wr (.clk(clk), .reset(reset), .enable(1'b1), .data_in(write_reg_in), .q_out(write_reg_out));
 	
 	//Data memory mux POST-ALU
 	twoInMux#(.W(32)) dataMemMux (.a_in(address), .b_in(mem_loader_out), .mux_out(skip_ram_mux_out), 

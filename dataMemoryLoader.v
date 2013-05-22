@@ -62,7 +62,7 @@ module dataMemoryLoader (input [31:0] _in, input [1:0] offset_in, input [1:0] si
 				end
 			end
 			default: begin
-				sign = 1'b0;
+				sign <= 1'b0;
 				_out <= _in;
 			end
 		endcase

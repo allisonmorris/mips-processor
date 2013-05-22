@@ -86,12 +86,12 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output [13:
 	assign bundle_out[13:0] = bundle[13:0];
 	
 	// registers
-	register #(.W(26)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));	
+	register #(.W(26), .D(26'h00e2531)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));	
 	register #(.W(32)) pc (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_in), .q_out(pc_seq));
 	register #(.W(32)) pc2 (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_2_in), .q_out(pc_seq_2));
-	register #(.W(32)) instrReg (.clk(clk), .reset(reset), .enable(1'b1), .data_in(instr_in), .q_out(instr));
+	register #(.W(32), .D(32'h34000000)) instrReg (.clk(clk), .reset(reset), .enable(1'b1), .data_in(instr_in), .q_out(instr));
 	register #(.W(32)) regWriteData (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_data_in), .q_out(reg_write_data));
-	register #(.W(5)) regWriteDest (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_dest_in), .q_out(reg_write_dest_2));
+	register #(.W(5), .D(5'h00)) regWriteDest (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_dest_in), .q_out(reg_write_dest_2));
 	
 	// modules
 	
