@@ -1,36 +1,67 @@
 `timescale 1ns/1ps
 
 module control(
-	input [5:0] opcode_in,
-	input [5:0] func_in,
-	input [4:0] code_in,
-	input jump_in,
-	input branch_in,
-	output reg pc_enable_out,
-	output reg [1:0]instr_mux_select_out,
-	output reg regfile_we_out,
-	output reg alu_mux_select_out,
-	output reg [5:0] alu_func_out,
-	output reg data_mem_re_out,
-	output reg data_mem_we_out,
-	output reg data_mem_mux_select_out,
-	output reg [1:0] data_mem_size_out,
-	output reg jmp_brn_mux_select_out,
-	output reg shift_mux_select_out,
-	output reg jmp_immreg_mux_select_out,
-	output reg brn_mux_select_out,
-	output reg jmp_mux_select_out,
-	output reg lui_mux_select,
-	output reg wrdata_mux_select,
-	output reg signed_out,
-	output reg extender_mux_select_out,
-	output reg nop_out
+	input clk,
+	input reset,
+	input [31:0]  instr_in,
+	output [25:0] bundle_out
 	);
+	
+	// wires for usage
+	wire [5:0]  opcode_in,
+				   func_in;
+	wire [4:0]  code_in;
+	wire        nop_stall;
+	wire [25:0] bundle;
+	
+	assign opcode_in[5:0] = instr_in[31:26];
+	assign func_in[5:0] = instr_in[5:0];
+	assign code_in[4:0] = instr_in[20:16];
+	assign bundle_out[25:0] = bundle[25:0];
+	
+	// regs for the bundle
+	reg [5:0] alu_func_out;
+	reg [1:0] instr_mux_select_out,
+	          data_mem_size_out;
+	reg       pc_enable_out,	
+	          regfile_we_out,
+	          alu_mux_select_out,
+	          data_mem_re_out,
+	          data_mem_we_out,
+	          data_mem_mux_select_out,
+	          jmp_brn_mux_select_out,
+	          shift_mux_select_out,
+	          jmp_immreg_mux_select_out,
+	          brn_mux_select_out,
+	          jmp_mux_select_out,
+	          lui_mux_select,
+	          wrdata_mux_select,
+	          signed_out,
+	          extender_mux_select_out;
 
+	// build the bundle
+	assign bundle[0] = regfile_we_out;
+	assign bundle[1] = wrdata_mux_select;
+	assign bundle[2] = data_mem_re_out;
+	assign bundle[3] = data_mem_we_out;
+	assign bundle[5:4] = data_mem_size_out;
+	assign bundle[6] = signed_out;
+	assign bundle[7] = data_mem_mux_select_out;
+	assign bundle[13:8] = alu_func_out;
+	assign bundle[15:14] = instr_mux_select_out;
+	assign bundle[16] = shift_mux_select_out;
+	assign bundle[17] = alu_mux_select_out;
+	assign bundle[18] = lui_mux_select;
+	assign bundle[19] = extender_mux_select_out;
+	assign bundle[20] = jmp_brn_mux_select_out;
+	assign bundle[21] = brn_mux_select_out;
+	assign bundle[22] = jmp_mux_select_out;
+	assign bundle[23] = jmp_immreg_mux_select_out;
+	assign bundle[24] = pc_enable_out;
+	assign bundle[25] = nop_stall;
+				 
 	//Opcode constants
 	parameter op_arith =	6'b000000;
-	parameter op_lw =		6'b100011;
-	parameter op_sw = 	6'b101011;
 	parameter op_addi = 	6'b001000;
 	parameter op_addiu = 6'b001001;
 	parameter op_andi = 	6'b001100;
@@ -44,21 +75,6 @@ module control(
 	parameter op_bltz_bgez = 	6'b000001; //same opcode for bgez 
 	parameter op_blez = 	6'b000110;
 	parameter op_bgtz = 	6'b000111;
-	parameter op_j = 		6'b000010;
-	parameter op_jal = 	6'b000011;
-	parameter op_lb = 	6'b100000;
-	parameter op_lh = 	6'b100001;
-	parameter op_sb = 	6'b101000;
-	parameter op_sh = 	6'b101001;
-	parameter op_lbu = 	6'b100100;
-	parameter op_lhu = 	6'b100101;
-	
-	
-	// Codes for branches
-	parameter code_bltz = 	5'b00000;
-	parameter code_blez = 	5'b00000;
-	parameter code_bgtz = 	5'b00000;
-	parameter code_bgez = 	5'b00001;
 	
 	//Func constants
 	parameter func_and =		6'b100100;
@@ -100,6 +116,10 @@ module control(
 	parameter size_byte =	2'b00;
 	parameter size_hw =		2'b01;
 
+	// the hazard detector
+	hazardDetector hd (.clk(clk), .reset(reset), .instr_in(instr_in), .stall_out(nop_stall));
+	
+	// set control signals for current instruction as if no stalling will occur
 	always @(*) begin
 		// handle R type
 		if (opcode_in == 6'b000000) begin
@@ -112,8 +132,8 @@ module control(
 			data_mem_mux_select_out = low;
 			jmp_brn_mux_select_out = low;
 			jmp_immreg_mux_select_out = low;
-			 brn_mux_select_out = branch_in;
-			jmp_mux_select_out = jump_in;
+			brn_mux_select_out = low;
+			jmp_mux_select_out = low;
 			lui_mux_select = low;
 			signed_out = low;
 			extender_mux_select_out = low;
@@ -130,6 +150,7 @@ module control(
 			//jumps
 			end else if (func_in[5:3] == 3'b001) begin
 				shift_mux_select_out = low;
+				jmp_brn_mux_select_out = high;
 				if (func_in[0] == 1'b0) begin
 					instr_mux_select_out = select_a;
 					regfile_we_out = low;
@@ -247,7 +268,7 @@ module control(
 			jmp_brn_mux_select_out = low;
 			shift_mux_select_out = low;
 			jmp_immreg_mux_select_out = high;
-			 brn_mux_select_out = branch_in;
+			 brn_mux_select_out = low;
 			jmp_mux_select_out = low;
 			lui_mux_select = high;
 			wrdata_mux_select = low;
@@ -282,8 +303,8 @@ module control(
 			jmp_brn_mux_select_out = low;
 			shift_mux_select_out = low;
 			jmp_immreg_mux_select_out = low;
-			 brn_mux_select_out = branch_in;
-			jmp_mux_select_out = jump_in;
+			 brn_mux_select_out = low;
+			jmp_mux_select_out = low;
 			lui_mux_select = high;
 			wrdata_mux_select = low;
 			extender_mux_select_out = low;
@@ -313,13 +334,13 @@ module control(
 			jmp_brn_mux_select_out = low;
 			shift_mux_select_out = low;
 			jmp_immreg_mux_select_out = high;
-			 brn_mux_select_out = branch_in;
+			 brn_mux_select_out = low;
 			jmp_mux_select_out = low;
 			lui_mux_select = high;
 			wrdata_mux_select = low;
 			signed_out = low;	
 			extender_mux_select_out = low;
-			if (code_in == code_bltz) begin
+			if (code_in == 5'b00000) begin
 				alu_func_out = func_bltz;
 			end else begin
 				alu_func_out = func_bgez;
