@@ -35,12 +35,18 @@ module MemoryModule (
 	assign ram_write_en = bundle[3];
 	assign bundle_out[1:0] = bundle[1:0];
 	
+	//Bob Data Mem Paths
+	parameter ram_mem0_path = "Z:/heybob On My Mac/Dropbox/cse141l/lab5/testcases/memory/simpleArith.data_ram0.memh";
+	parameter ram_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/simpleArith.data_ram1.memh";
+	parameter ram_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/simpleArith.data_ram2.memh";
+	parameter ram_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/simpleArith.data_ram3.memh";
 	// data mem paths
+	/*
 	parameter ram_mem0_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 	parameter ram_mem1_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 	parameter ram_mem2_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
 	parameter ram_mem3_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/testall.ram.memh";
-		
+	*/
 	//Registers for Inputs
 	register #(.W(8), .D(8'h31)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));
 	register #(.W(32)) pc (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_in), .q_out(pc_seq_out));
