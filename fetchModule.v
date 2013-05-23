@@ -14,7 +14,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	assign instruction_out = nop_mux_out;
 	assign bundle_out = bundle_mux_out;
 	assign pc_seq_out = pc_seq;
-	assign pc_inc_en = bundle[25];
+	assign pc_inc_en = ~bundle[25];
 	
 	//Need no op instruction
 	assign nop = 32'b00110100000000000000000000000000; // ori $zero,$zero,0 0x34000000
