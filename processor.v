@@ -49,7 +49,7 @@ module processor(
 		.reg_write_dest_out(execute_write_dest), .reg_read2_in(decode_read_2), .reg_read2_out(execute_read_2), .alu_out(execute_alu));
 	
 	MemoryModule memory (.clk(clock), .reset(reset), .bundle_in(execute_bundle), .address_in(execute_alu), .reg_b_in(execute_read_2), 
-		.write_reg_in(decode_write_dest), .write_reg_out(memory_write_dest), .bundle_out(memory_bundle), .pc_seq_in(execute_pc_seq), 
+		.write_reg_in(execute_write_dest), .write_reg_out(memory_write_dest), .bundle_out(memory_bundle), .pc_seq_in(execute_pc_seq), 
 		.pc_seq_out(memory_pc_seq), .skip_ram_mux_out(memory_write_data), 
 		.serial_in(serial_in), .serial_ready_in(serial_ready_in), .serial_valid_in(serial_valid_in), 
 		.serial_out(serial_out), .serial_rden_out(serial_rden_out), .serial_wren_out(serial_wren_out));

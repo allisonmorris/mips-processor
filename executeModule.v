@@ -8,7 +8,7 @@ module ExecuteModule (input clk, input reset, input [13:0] bundle_in, output [7:
 	wire [13:0] bundle;
 	wire [31:0] a, b;
 	
-	assign alu_func = bundle_in[13:8];
+	assign alu_func = bundle[13:8];
 	assign bundle_out[7:0] = bundle[7:0];
 	
 	register #(.W(5), .D(5'h00))  reg_write (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_dest_in), .q_out(reg_write_dest_out));

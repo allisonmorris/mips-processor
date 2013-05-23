@@ -28,10 +28,10 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	//Modules
 	// Need to add instruction / no op mux
 	
-	twoInMux#(.W(24)) bundleMux (.a_in(bundle[23:0]), .b_in(nop_bundle), .mux_out(bundle_mux_out), 
+	twoInMux#(.W(24)) bundleMux (.b_in(bundle[23:0]), .a_in(nop_bundle), .mux_out(bundle_mux_out), 
 		.select(pc_inc_en)); 
 		
-	twoInMux#(.W(32)) nopMux (.a_in(rom_out), .b_in(nop), .mux_out(nop_mux_out), 
+	twoInMux#(.W(32)) nopMux (.b_in(rom_out), .a_in(nop), .mux_out(nop_mux_out), 
 		.select(pc_inc_en));
 	
 	// PC Adder

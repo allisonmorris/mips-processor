@@ -36,7 +36,7 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 			// move stages along
 			reg_dest[2] <= reg_dest[1];
 			reg_dest[1] <= reg_dest[0];
-			
+			$display("ls: %x, rs %x, or: %x, 0: %x, 1: %x, rs: %x ", (reg_dest[0] == instr_rs), (reg_dest[1] == instr_rs), ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs)), reg_dest[0], reg_dest[1], instr_rs);
 			// handle immediate modifiers: read rs, write rt
 			if ((instr_opcode[5:3] == 3'b001) || (instr_opcode[5:3] == 3'b100)) begin
 				if (instr_rs == zero) begin
@@ -60,21 +60,23 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 					stall_out <= no;
 				end
 			// handle double readers: read rs and rt
-			end else if ((instr_in[5:2] == 4'b1010) || (instr_in[5:1] == 5'b00010)) begin
+			end else if ((instr_opcode[5:2] == 4'b1010) || (instr_opcode[5:1] == 5'b00010)) begin
 				reg_dest[0] <= zero;
-				if ((instr_rs == zero) && (instr_rt == zero)) begin
-					stall_out <= no;
-				end else if ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs) || (reg_dest[0] == instr_rt) || (reg_dest[1] == instr_rt)) begin
+				$display("read rs and rt");
+				//if ((instr_rs == zero) && (instr_rt == zero)) begin
+				//	stall_out <= no;
+				if ((instr_rs != zero) && ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs)) || (instr_rt != zero) && ((reg_dest[0] == instr_rt) || (reg_dest[1] == instr_rt))) begin
 					stall_out <= yes;
+					$display("We should be stalling here, rs %x and dest %x", instr_rs, reg_dest[0]);
 				end else begin
 					stall_out <= no;
 				end
 			// handle double reader and solo writers: read rs and rt, write rd
-			end else if (instr_in[5:0] == 6'b000000) begin
-				if ((instr_rs == zero) && (instr_rt == zero)) begin
-					reg_dest[0] <= instr_rd;
-					stall_out <= no;
-				end else if ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs) || (reg_dest[0] == instr_rt) || (reg_dest[1] == instr_rt)) begin
+			end else if (instr_opcode[5:0] == 6'b000000) begin
+				//if ((instr_rs == zero) && (instr_rt == zero)) begin
+				//	reg_dest[0] <= instr_rd;
+				//	stall_out <= no;
+				if ((instr_rs != zero) && ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs)) || (instr_rt != zero) && ((reg_dest[0] == instr_rt) || (reg_dest[1] == instr_rt))) begin
 					reg_dest[0] <= zero;
 					stall_out <= yes;
 				end else begin
@@ -82,7 +84,7 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 					stall_out <= no;
 				end
 			// handle jal write only: write 31
-			end else if (instr_in[5:0] == 6'b000011) begin
+			end else if (instr_opcode[5:0] == 6'b000011) begin
 				reg_dest[0] <= ra;
 				stall_out <= no;
 			// handle default: should be nothing
