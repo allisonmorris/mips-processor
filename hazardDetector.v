@@ -18,18 +18,14 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 	
 	// 001    use rs as source and rt as dest X
 	// 100    use rs as source and rt as dest X
-	// 000011 uses 31 as dest
+	// 000011 uses 31 as dest X
 	
 	// 00011  use rs as source X
 	// 000001 use rs as source X
 	// 1010   use rs and rt as source X
 	// 00010  use rs and rt as source X
 	// 000000 use rs and rt as source and rd as dest X
-	
-	// 001 and 100 use rt
-	// 000000 use rd
-	// 000011 use 31
-	
+
 	always @(posedge clk) begin
 		if (reset) begin
 			reg_dest[2] <= 5'b00000;

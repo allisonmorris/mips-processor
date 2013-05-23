@@ -47,6 +47,7 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output [13:
 					data_imm_upshifted,
 					skip_imm_upshift,
 					pc_branch_sum,
+					pc_seq_sum,
 					branch_address,
 					jump_address,
 					jump_imm_reg,
@@ -87,7 +88,7 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output [13:
 	
 	// registers
 	register #(.W(26), .D(26'h00e2531)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));	
-	register #(.W(32)) pc (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_in), .q_out(pc_seq));
+	register #(.W(32), .D(32'h00400000)) pc (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_in), .q_out(pc_seq));
 	register #(.W(32)) pc2 (.clk(clk), .reset(reset), .enable(1'b1), .data_in(pc_seq_2_in), .q_out(pc_seq_2));
 	register #(.W(32), .D(32'h34000000)) instrReg (.clk(clk), .reset(reset), .enable(1'b1), .data_in(instr_in), .q_out(instr));
 	register #(.W(32)) regWriteData (.clk(clk), .reset(reset), .enable(1'b1), .data_in(reg_write_data_in), .q_out(reg_write_data));
@@ -137,7 +138,9 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output [13:
 	alu branchChooser (.Func_in(alu_func), .A_in(reg_read1), .B_in(reg_read2), .O_out(), .Branch_out(branch_mux_sel),
 		.Jump_out());
 	
-	twoInMux #(.W(32)) branchMux(.a_in(pc_seq), .b_in(pc_branch_sum), .select(branch_mux_sel), 
+	adder pcSeqAdder (.a_in(pc_seq), .b_in(32'h04), ._out(pc_seq_sum));
+	
+	twoInMux #(.W(32)) branchMux(.a_in(pc_seq_sum), .b_in(pc_branch_sum), .select(branch_mux_sel), 
 		.mux_out(branch_address));
 		
 	twoInMux #(.W(32)) jumpImmRegMux(.a_in(reg_read1), .b_in(jump_imm_concatenated), .select(jump_imm_reg_mux_sel), 
