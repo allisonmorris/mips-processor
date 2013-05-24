@@ -38,7 +38,7 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 			reg_dest[3] <= reg_dest[2];
 			reg_dest[2] <= reg_dest[1];
 			reg_dest[1] <= reg_dest[0];
-			$display("ls: %x, rs %x, or: %x, 0: %x, 1: %x, rs: %x ", (reg_dest[0] == instr_rs), (reg_dest[1] == instr_rs), ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs)), reg_dest[0], reg_dest[1], instr_rs);
+			//$display("ls: %x, rs %x, or: %x, 0: %x, 1: %x, rs: %x ", (reg_dest[0] == instr_rs), (reg_dest[1] == instr_rs), ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs)), reg_dest[0], reg_dest[1], instr_rs);
 			// handle immediate modifiers: read rs, write rt
 			if ((instr_opcode[5:3] == 3'b001) || (instr_opcode[5:3] == 3'b100)) begin
 				if (instr_rs == zero) begin
@@ -64,12 +64,12 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 			// handle double readers: read rs and rt
 			end else if ((instr_opcode[5:2] == 4'b1010) || (instr_opcode[5:1] == 5'b00010)) begin
 				reg_dest[0] <= zero;
-				$display("read rs and rt");
+				//$display("read rs and rt");
 				//if ((instr_rs == zero) && (instr_rt == zero)) begin
 				//	stall_out <= no;
 				if ((instr_rs != zero) && ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs) || (reg_dest[2] == instr_rs)) || (instr_rt != zero) && ((reg_dest[0] == instr_rt) || (reg_dest[1] == instr_rt) || (reg_dest[2] == instr_rt))) begin
 					stall_out <= yes;
-					$display("We should be stalling here, rs %x and dest %x", instr_rs, reg_dest[0]);
+					//$display("We should be stalling here, rs %x and dest %x", instr_rs, reg_dest[0]);
 				end else begin
 					stall_out <= no;
 				end
@@ -96,89 +96,5 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 			end
 		end
 	end
-	
-	/*always @(posedge clk) begin
-		if (reset) begin
-			reg_dest[4] <= 5'b00000;
-			reg_dest[3] <= 5'b00000;
-			reg_dest[2] <= 5'b00000;
-			reg_dest[1] <= 5'b00000;
-			reg_dest[0] <= 5'b00000;
-			stall_out <= 1'b0;
-		end else begin
-			reg_dest[4] <= reg_dest[3];
-			reg_dest[3] <= reg_dest[2];
-			reg_dest[2] <= reg_dest[1];
-			reg_dest[1] <= reg_dest[0];
-			
-			if ((instr_opcode[5:3] == 3'b001) || (instr_opcode[5:3] == 3'b100)) begin
-				if (instr_rt == zero) begin
-					stall_out <= no;
-					reg_dest[0] <= zero;
-				end else begin
-					if (reg_dest[1] == instr_rt) begin
-						stall_out <= yes;
-						reg_dest[0] <= zero;
-					end else if (reg_dest[2] == instr_rt) begin
-						stall_out <= yes;
-						reg_dest[0] <= zero;
-					end else if (reg_dest[3] == instr_rt) begin
-						stall_out <= yes;
-						reg_dest[0] <= zero;
-					end else if (reg_dest[4] == instr_rt) begin
-						stall_out <= yes;
-						reg_dest[0] <= zero;
-					end else begin
-						stall_out <= no;
-						reg_dest[0] <= instr_rt;
-					end
-				end
-			end else if (instr_opcode[5:0] == 6'b000000) begin
-				reg_dest[0] <= instr_rd;
-				if (instr_rd == zero) begin
-					stall_out <= no;
-					reg_dest[0] <= zero;
-				end else begin
-					if (reg_dest[1] == instr_rd) begin
-						stall_out <= yes;
-						reg_dest[0] <= zero;
-					end else if (reg_dest[2] == instr_rd) begin
-						stall_out <= yes;
-						reg_dest[0] <= zero;
-					end else if (reg_dest[3] == instr_rd) begin
-						stall_out <= yes;
-						reg_dest[0] <= zero;
-					end else if (reg_dest[4] == instr_rd) begin
-						stall_out <= yes;
-						reg_dest[0] <= zero;
-					end else begin
-						stall_out <= no;
-						reg_dest[0] <= instr_rd;
-					end
-				end
-			end else if (instr_opcode[5:0] == 6'b000011) begin
-				reg_dest[0] <= ra;
-				if (reg_dest[1] == ra) begin
-					stall_out <= yes;
-					reg_dest[0] <= zero;
-				end else if (reg_dest[2] == ra) begin
-					stall_out <= yes;
-					reg_dest[0] <= zero;
-				end else if (reg_dest[3] == ra) begin
-					stall_out <= yes;
-					reg_dest[0] <= zero;
-				end else if (reg_dest[4] == ra) begin
-					stall_out <= yes;
-					reg_dest[0] <= zero;
-				end else begin
-					stall_out <= no;
-					reg_dest[0] <= ra;
-				end
-			end else begin
-				reg_dest[0] <= zero;
-				stall_out <= no;
-			end
-		end
-	end*/
 
 endmodule

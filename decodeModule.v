@@ -1,7 +1,7 @@
 
 module DecodeModule (input clk, input reset, input [25:0] bundle_in, output [13:0] bundle_out,
 		input [31:0] pc_seq_in, input [31:0] pc_seq_2_in, output [31:0] pc_seq_out, input [31:0] instr_in,
-		output [31:0] operand_a_out, output [31:0] operand_b_out, output [31:0] reg_read2_out, 
+		output [31:0] operand_a_out, output [31:0] operand_b_out, output [31:0] reg_read2_out, output jump_branch_out,
 		output [4:0] reg_write_dest_out, input [4:0] reg_write_dest_in, input [31:0] reg_write_data_in, output [31:0] jump_address_out);
 
 	
@@ -85,6 +85,7 @@ module DecodeModule (input clk, input reset, input [25:0] bundle_in, output [13:
 	assign reg_write_dest_out = reg_write_dest;
 	assign pc_seq_out = pc_seq;
 	assign bundle_out[13:0] = bundle[13:0];
+	assign jump_branch_out = jump_mux_sel | branch_mux_sel;
 	
 	// registers
 	register #(.W(26), .D(26'h00e2531)) controls (.clk(clk), .reset(reset), .enable(1'b1), .data_in(bundle_in), .q_out(bundle));	

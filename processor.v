@@ -30,6 +30,7 @@ module processor(
 	wire [25:0] fetch_writeback_bundle;
 	wire [7:0]  execute_bundle;
 	wire [1:0]  memory_bundle;
+	wire        decode_jump_branch;
 	
 	
 	
@@ -37,11 +38,11 @@ module processor(
 	assign fetch_writeback_bundle[25:24] = memory_bundle[1:0];
 
 	FetchModule fetch (.clk(clock), .reset(reset), .next_pc_in(decode_next_address), .instruction_out(fetch_instruction), 
-		.bundle_out(fetch_bundle), .pc_seq_out(fetch_pc_seq));
+		.bundle_out(fetch_bundle), .pc_seq_out(fetch_pc_seq), .jump_branch_in(decode_jump_branch));
 	
 	DecodeModule decodeWb (.clk(clock), .reset(reset), .bundle_in(fetch_writeback_bundle), .bundle_out(decode_bundle), .pc_seq_in(fetch_pc_seq), 
 		.pc_seq_2_in(memory_pc_seq), .pc_seq_out(decode_pc_seq), .instr_in(fetch_instruction), .operand_a_out(decode_operand_a), 
-		.operand_b_out(decode_operand_b), .reg_read2_out(decode_read_2), .reg_write_dest_in(memory_write_dest), 
+		.operand_b_out(decode_operand_b), .reg_read2_out(decode_read_2), .reg_write_dest_in(memory_write_dest), .jump_branch_out(decode_jump_branch),
 		.reg_write_dest_out(decode_write_dest), .reg_write_data_in(memory_write_data), .jump_address_out(decode_next_address));
 	
 	ExecuteModule execute (.clk(clock), .reset(reset), .bundle_in(decode_bundle), .bundle_out(execute_bundle), .pc_seq_in(decode_pc_seq), 
