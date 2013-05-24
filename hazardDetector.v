@@ -1,7 +1,7 @@
 
 module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg stall_out);
 
-	reg [4:0] reg_dest [2:0];
+	reg [4:0] reg_dest [3:0];
 	
 	wire [5:0] instr_opcode;
 	wire [4:0] instr_rs, instr_rt, instr_rd;
@@ -26,14 +26,16 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 	// 00010  use rs and rt as source X
 	// 000000 use rs and rt as source and rd as dest X
 
-	always @(posedge clk) begin
+	always @(negedge clk) begin
 		if (reset) begin
+			reg_dest[3] <= 5'b00000;
 			reg_dest[2] <= 5'b00000;
 			reg_dest[1] <= 5'b00000;
 			reg_dest[0] <= 5'b00000;
 			stall_out <= 1'b0;
 		end else begin
 			// move stages along
+			reg_dest[3] <= reg_dest[2];
 			reg_dest[2] <= reg_dest[1];
 			reg_dest[1] <= reg_dest[0];
 			$display("ls: %x, rs %x, or: %x, 0: %x, 1: %x, rs: %x ", (reg_dest[0] == instr_rs), (reg_dest[1] == instr_rs), ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs)), reg_dest[0], reg_dest[1], instr_rs);
@@ -42,7 +44,7 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 				if (instr_rs == zero) begin
 					reg_dest[0] <= instr_rt;
 					stall_out <= no;
-				end else if ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs)) begin
+				end else if ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs) || (reg_dest[2] == instr_rs)) begin
 					reg_dest[0] <= zero;
 					stall_out <= yes;
 				end else begin
@@ -54,7 +56,7 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 				reg_dest[0] <= zero;
 				if (instr_rs == zero) begin
 					stall_out <= no;
-				end else if ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs)) begin
+				end else if ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs) || (reg_dest[2] == instr_rs)) begin
 					stall_out <= yes;
 				end else begin
 					stall_out <= no;
@@ -65,7 +67,7 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 				$display("read rs and rt");
 				//if ((instr_rs == zero) && (instr_rt == zero)) begin
 				//	stall_out <= no;
-				if ((instr_rs != zero) && ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs)) || (instr_rt != zero) && ((reg_dest[0] == instr_rt) || (reg_dest[1] == instr_rt))) begin
+				if ((instr_rs != zero) && ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs) || (reg_dest[2] == instr_rs)) || (instr_rt != zero) && ((reg_dest[0] == instr_rt) || (reg_dest[1] == instr_rt) || (reg_dest[2] == instr_rt))) begin
 					stall_out <= yes;
 					$display("We should be stalling here, rs %x and dest %x", instr_rs, reg_dest[0]);
 				end else begin
@@ -76,7 +78,7 @@ module hazardDetector (input clk, input reset, input [31:0] instr_in, output reg
 				//if ((instr_rs == zero) && (instr_rt == zero)) begin
 				//	reg_dest[0] <= instr_rd;
 				//	stall_out <= no;
-				if ((instr_rs != zero) && ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs)) || (instr_rt != zero) && ((reg_dest[0] == instr_rt) || (reg_dest[1] == instr_rt))) begin
+				if ((instr_rs != zero) && ((reg_dest[0] == instr_rs) || (reg_dest[1] == instr_rs) || (reg_dest[2] == instr_rs)) || (instr_rt != zero) && ((reg_dest[0] == instr_rt) || (reg_dest[1] == instr_rt) || (reg_dest[2] == instr_rt))) begin
 					reg_dest[0] <= zero;
 					stall_out <= yes;
 				end else begin

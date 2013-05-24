@@ -13,7 +13,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	
 	assign instruction_out = nop_mux_out;
 	assign bundle_out = bundle_mux_out;
-	assign pc_seq_out = pc_seq;
+	// assign pc_seq_out = pc_seq;
 	assign pc_inc_en = ~bundle[25];
 	
 	//Need no op instruction
@@ -23,7 +23,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/branchdelay.inst_rom.memh";
 
 	// PC Register
-	register #(.W(32), .D(32'h00400000))pcReg (.clk(clk),.reset(reset), .enable(pc_inc_en), .data_in(next_pc_in), .q_out(next_pc));
+	register #(.W(32), .D(32'h003ffffc))pcReg (.clk(clk),.reset(reset), .enable(pc_inc_en), .data_in(next_pc_in), .q_out(next_pc));
 	
 	//Modules
 	// Need to add instruction / no op mux
@@ -33,6 +33,9 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 		
 	twoInMux#(.W(32)) nopMux (.b_in(rom_out), .a_in(nop), .mux_out(nop_mux_out), 
 		.select(pc_inc_en));
+	
+	// need to stop incrementing if we're stalling
+	twoInMux #(.W(32)) stallPCSeqMux(.b_in(pc_seq), .a_in(next_pc), .select(pc_inc_en), .mux_out(pc_seq_out));
 	
 	// PC Adder
 	adder pcInc (.a_in(next_pc), .b_in(32'h4), ._out(pc_seq));

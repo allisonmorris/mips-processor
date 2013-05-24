@@ -31,7 +31,7 @@ module inst_rom (
 		$readmemh(INIT_PROGRAM, rom);
 	end
 	
-	always @(posedge clock) begin
+	always @(*) begin
 		if (reset) begin
 			out <= 32'h00000000;
 		end else begin
