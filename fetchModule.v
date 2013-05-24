@@ -24,7 +24,12 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	assign nop = 32'b00110100000000000000000000000000; // ori $zero,$zero,0 0x34000000
 	// assign nop_bundle = 24'b100001100010000000110001; //leave as binary for debug. this doesn't look quite right...
 	assign nop_bundle =    24'b000011100010010100110001; // 0x0E2531
+	
+	// Alex
 	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.inst_rom.memh";
+	// Bob
+	//parameter inst_mem_path = "Z:/heybob On My Mac/Dropbox/cse141l/lab5/testcases/memory/simpleArith.inst_rom.memh";
+	//parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/branchdelay.inst_rom.memh";
 
 	// PC Register
 	register #(.W(32), .D(32'h003ffffc)) pcReg (.clk(clk),.reset(reset), .enable(pc_inc_en), .data_in(next_pc_in), .q_out(next_reg_pc));
