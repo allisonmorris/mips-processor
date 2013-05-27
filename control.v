@@ -151,6 +151,7 @@ module control(
 			end else if (func_in[5:3] == 3'b001) begin
 				shift_mux_select_out = low;
 				jmp_brn_mux_select_out = high;
+				jmp_mux_select_out = high;
 				if (func_in[0] == 1'b0) begin
 					instr_mux_select_out = select_a;
 					regfile_we_out = low;
