@@ -8,7 +8,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 						pc_seq,
 						rom_out,
 						nop_mux_out;
-	wire [31:0]		nop;
+	wire [31:0]		nop, cnt;
 	wire [23:0]		nop_bundle, bundle_mux_out;
 	wire [25:0]    bundle;
 	wire           pc_inc_en,
@@ -27,10 +27,9 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	
 	// Alex
 	//parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab5/testBasicMem.rom.memh";
-	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.inst_rom.memh";
+	//parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.inst_rom.memh";
 	// Bob
-	//parameter inst_mem_path = "Z:/heybob On My Mac/Dropbox/cse141l/lab5/testcases/memory/simpleArith.inst_rom.memh";
-	//parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/branchdelay.inst_rom.memh";
+	parameter inst_mem_path = "Z:/heybob/Dropbox/cse141l/lab5/testcases/memory/simpleArith.inst_rom.memh";
 
 	// PC Register
 	register #(.W(32), .D(32'h003ffffc)) pcReg (.clk(clk),.reset(reset), .enable(pc_inc_en), .data_in(next_pc_in), .q_out(next_reg_pc));
@@ -39,6 +38,9 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	register #(.W(1), .D(1'b0)) jbReg2 (.clk(clk), .reset(reset), .enable(pc_inc_en), .data_in(jump_branch), .q_out(jump_branch_rest_mux_sel));
 	
 	//Modules
+	
+	// create a stall counter
+	counter stallCount ( .clk(clk), .reset(reset),.pc_en(pc_inc_en), .count(cnt));
 	
 	// jump/branch restorer mux
 	twoInMux #(.W(32)) jbRestMux (.a_in(next_reg_pc), .b_in(next_reg_pc_2), .select(jump_branch_rest_mux_sel), .mux_out(next_pc));
