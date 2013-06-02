@@ -26,8 +26,8 @@ processor dut(
 	.clock(clock),
 	.reset(reset),
 	
-	.serial_in(8'b0),
-	.serial_valid_in(1'b0), //active-high - we never have anything to read from the serial port
+	.serial_in(8'b11),
+	.serial_valid_in(1'b1), //active-high - we never have anything to read from the serial port
 	.serial_ready_in(1'b1), //active-high - we are always ready to print serial data
 	.serial_rden_out(), //active-high
 	.serial_out(serial_out),
