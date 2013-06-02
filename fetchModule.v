@@ -27,7 +27,7 @@ module FetchModule (input clk, input reset, input [31:0] next_pc_in, output [31:
 	
 	// Alex
 	//parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab5/testBasicMem.rom.memh";
-	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/hello_world.inst_rom.memh";
+	parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab5/test.inst_rom.memh";
 	// Bob
 	//parameter inst_mem_path = "Z:/heybob On My Mac/Dropbox/cse141l/lab5/testcases/memory/simpleArith.inst_rom.memh";
 	//parameter inst_mem_path = "C:/Alex/Documents/cse141/mips-processor/mem/lab4/branchdelay.inst_rom.memh";
